@@ -36,6 +36,7 @@ body{font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-font-smoo
 .maplibregl-ctrl-attrib{background:rgba(7,16,18,.55)!important;color:var(--bone-dim)!important;font:10px var(--f-mono)}
 .maplibregl-ctrl-attrib a{color:var(--bone-dim)!important}
 .maplibregl-ctrl-attrib-button{filter:invert(1)}
+.maplibregl-ctrl-bottom-right{bottom:calc(64px + env(safe-area-inset-bottom,0px))!important;z-index:3}
 
 /* scrims */
 #scrim{position:fixed;inset:0;pointer-events:none;transition:background .9s var(--ease),opacity .9s var(--ease)}
@@ -47,7 +48,7 @@ body{font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-font-smoo
 #scrim.s-solid{background:var(--ink)}
 
 /* slides */
-.slide{position:fixed;inset:0;display:flex;pointer-events:none;visibility:hidden;
+.slide{position:fixed;inset:0;z-index:2;isolation:isolate;display:flex;pointer-events:none;visibility:hidden;
   padding:clamp(28px,5vh,64px) max(16px,clamp(24px,5vw,80px)) clamp(80px,11vh,110px);
   padding-left:max(16px,env(safe-area-inset-left,0px),clamp(24px,5vw,80px));
   padding-right:max(16px,env(safe-area-inset-right,0px),clamp(24px,5vw,80px))}
@@ -128,6 +129,9 @@ em{font-style:italic;color:var(--jade)}
 #lossov .yrl{position:absolute;inset:0;visibility:hidden}
 #lossov .yrl.on{visibility:visible}
 #lossov img{position:absolute;image-rendering:pixelated;max-width:none}
+#lossov .yrl img{opacity:.8}
+#lossov .yrl.now img{opacity:1;filter:brightness(1.6) saturate(1.4)}
+.lstat{font:400 11px var(--f-mono);color:var(--jade);letter-spacing:.06em;min-height:1em}
 .bars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end;height:120px;width:100%}
 .bars div{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;height:120px}
 .bars i{display:block;background:var(--ember);opacity:.85;height:0;flex:none;transition:height 1.2s var(--ease)}
@@ -152,7 +156,8 @@ em{font-style:italic;color:var(--jade)}
 
 /* species */
 #s-fauna,#s-flora{flex-direction:column;gap:22px;justify-content:center}
-.sp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1vw,14px);width:100%;flex:0 1 auto;min-height:0}
+.sp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:clamp(8px,1vw,14px);width:100%;height:calc(100vh - 230px);height:calc(100dvh - 230px);max-height:760px;min-height:0}
+.sp-grid .sp,.flora-grid .sp{aspect-ratio:auto;height:100%}
 .sp{position:relative;overflow:hidden;aspect-ratio:4/3;max-width:100%;background:linear-gradient(140deg,var(--ink-2),var(--jade-deep))}
 .sp img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.12);transition:transform 6s var(--ease),opacity 1s;opacity:0}
 .sp img.ok{opacity:1}
@@ -166,8 +171,8 @@ em{font-style:italic;color:var(--jade)}
 .sp .st.nt,.sp .st.vu{border-color:#e7c46a;color:#e7c46a}
 .sp .alt{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-style:italic;color:var(--bone-dim);font-size:22px}
 .sp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;width:100%}
-.flora-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;width:100%}
-.flora-grid .sp{aspect-ratio:16/10}
+.flora-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;width:100%;height:calc(100vh - 230px);height:calc(100dvh - 230px);max-height:700px}
+
 .slide.on .sp:nth-child(1){transition-delay:.1s}
 .sp.a:nth-child(2){transition-delay:.2s}.sp.a:nth-child(3){transition-delay:.3s}.sp.a:nth-child(4){transition-delay:.4s}
 .sp.a:nth-child(5){transition-delay:.5s}.sp.a:nth-child(6){transition-delay:.6s}
@@ -219,13 +224,14 @@ em{font-style:italic;color:var(--jade)}
 /* chrome */
 .nav{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:16px;
   padding:14px max(16px,env(safe-area-inset-right,0px),clamp(24px,5vw,80px)) max(14px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px),clamp(24px,5vw,80px));
-  font:400 11px var(--f-mono);letter-spacing:.1em;color:var(--bone-dim);z-index:20}
+  font:400 11px var(--f-mono);letter-spacing:.1em;color:var(--bone-dim);z-index:50;pointer-events:none}
+.nav > *{pointer-events:auto}
 .brand{text-transform:uppercase}
 .brand b{color:var(--bone);font-weight:500}
 .ctr{display:flex;align-items:center;gap:14px}
 .nav button{background:none;border:1px solid var(--line);color:var(--bone);width:38px;height:38px;cursor:pointer;font:16px var(--f-mono);transition:border-color .3s}
 .nav button:hover{border-color:var(--jade)}
-.bar{position:fixed;left:0;top:0;height:2px;background:var(--jade);z-index:21;transition:width .8s var(--ease)}
+.bar{position:fixed;left:0;top:0;height:2px;background:var(--jade);z-index:51;transition:width .8s var(--ease)}
 #lbox{position:fixed;inset:0;z-index:40;background:rgba(7,16,18,.94);display:grid;grid-template-rows:auto 1fr;gap:12px;
   padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 #lbox iframe{width:100%;height:100%;border:0;background:var(--ink-2)}
@@ -241,7 +247,7 @@ em{font-style:italic;color:var(--jade)}
 @media (max-width:800px){
   #s-pop .grid,.bio,.ret{grid-template-columns:1fr}
   .ret > div + div{border-left:0;border-top:1px solid var(--line);padding-left:0;margin-top:24px}
-  .sp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sp-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr))}
   .counts{grid-template-columns:repeat(3,minmax(0,1fr))}
   .slide{overflow-y:auto}
   .hud{display:none}
@@ -322,6 +328,7 @@ em{font-style:italic;color:var(--jade)}
     <div class="eyebrow a">Pérdida de cobertura arbórea · lago y alrededores</div>
     <div class="yr a d1 yrc">2001</div>
     <div class="legend a d2"><i></i>Bosque perdido acumulado desde 2001 · UMD / Global Forest Watch</div>
+    <div class="lstat"></div>
     <div class="btns a d3">
       <button class="btn lossPlay" type="button">Reproducir</button>
       <button class="btn landsat" type="button">Timelapse Landsat 1984–2022</button>
@@ -354,6 +361,7 @@ em{font-style:italic;color:var(--jade)}
     <p class="quote a d3">“Cobertura forestal muy fragmentada” alrededor del lago; Cerro Cahuí es “el último gran parche de bosque” que une Tikal con el Petén Itzá.</p>
     <p class="note a d3">Plan maestro Biotopo Cerro Cahuí, CONAP. Mapa: pérdida acumulada 2001–2024 alrededor de Reserva Nimá.</p>
     <div class="btns a d4" style="align-items:center"><button class="btn lossPlay" type="button">Reproducir</button><span class="legend"><i></i>Pérdida 2001–<span class="yrc mono">2001</span></span></div>
+    <div class="lstat"></div>
   </div>
 </section>
 
@@ -523,7 +531,7 @@ const SITE = [-89.8548, 16.9768];
 const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const LOSS_YEARS = Array.from({length:24},(_,i)=>2001+i); // 2001–2024
-const lossURL = y => `https://tiles.globalforestwatch.org/umd_tree_cover_loss/latest/dynamic/{z}/{x}/{y}.png?start_year=2001&end_year=${y}&tree_cover_density_threshold=30&render_type=true_color`;
+const lossURL = y => `https://tiles.globalforestwatch.org/umd_tree_cover_loss/latest/dynamic/{z}/{x}/{y}.png?start_year=${y}&end_year=${y}&tree_cover_density_threshold=30&render_type=true_color`;
 const GE_TL = 'https://earthengine.google.com/iframes/timelapse_player_embed.html#v=16.975,-89.83,10.6,latLng&t=0&ps=50&bt=19840101&et=20221231&startDwell=0&endDwell=1';
 const GE_LINK = 'https://earthengine.google.com/timelapse/#v=16.975,-89.83,10.6,latLng&t=0';
 
@@ -599,21 +607,30 @@ const t2lat=(y,z)=>{const n=Math.PI-2*Math.PI*y/Math.pow(2,z);return 180/Math.PI
 const lng2t=(lng,z)=>Math.floor((lng+180)/360*Math.pow(2,z));
 const lat2t=(lat,z)=>{const r=lat*Math.PI/180;return Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*Math.pow(2,z));};
 function lossTiles(){
-  const z=Math.max(3,Math.min(12,Math.round(map.getZoom()))), bb=map.getBounds();
+  const z=Math.max(3,Math.min(12,Math.floor(map.getZoom()))), bb=map.getBounds();
   const x0=lng2t(bb.getWest(),z), x1=lng2t(bb.getEast(),z), y0=lat2t(bb.getNorth(),z), y1=lat2t(bb.getSouth(),z);
   const t=[]; for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++) t.push([z,x,y]); return t;
 }
+let lossTotal=0, lossDone=0;
+function lossProgress(){ const p=lossTotal?Math.round(lossDone/lossTotal*100):0;
+  document.querySelectorAll('.lstat').forEach(e=>{ e.textContent=p<100?`Cargando datos satelitales ${p}%`:''; }); }
 function buildLoss(){
   const tiles=lossTiles(), key=tiles.map(t=>t.join('/')).join(',');
   if(key===lossBuilt) { placeLoss(); return; }
-  lossBuilt=key; lossov.innerHTML='';
+  lossBuilt=key; lossov.innerHTML=''; lossTotal=tiles.length*LOSS_YEARS.length; lossDone=0; lossProgress();
   LOSS_YEARS.forEach(yr=>{ const l=document.createElement('div'); l.className='yrl'; l.dataset.y=yr;
     tiles.forEach(([z,x,y])=>{ const im=new Image(); im.alt=''; im.decoding='async'; im.dataset.t=z+'/'+x+'/'+y;
-      im.onerror=()=>{ im.remove(); };
-      im.src=lossURL(yr).replace('{z}',z).replace('{x}',x).replace('{y}',y); l.appendChild(im); });
+      const url=lossURL(yr).replace('{z}',z).replace('{x}',x).replace('{y}',y);
+      let tries=0;
+      const done=()=>{ lossDone++; lossProgress(); };
+      im.onload=done;
+      im.onerror=()=>{ if(tries++<2){ setTimeout(()=>{ im.src=url+'&r='+tries; },600*tries); } else { im.style.display='none'; done(); } };
+      im.src=url; l.appendChild(im); });
     lossov.appendChild(l); });
   placeLoss(); if(lossYear) lossShow(lossYear);
 }
+function lossReady(maxMs=20000){ const t0=performance.now();
+  return new Promise(res=>{ const chk=()=>{ if(lossDone>=lossTotal*0.97||performance.now()-t0>maxMs) res(); else setTimeout(chk,200); }; chk(); }); }
 function placeLoss(){
   lossov.querySelectorAll('img').forEach(im=>{ const [z,x,y]=im.dataset.t.split('/').map(Number);
     const a=map.project([t2lng(x,z),t2lat(y,z)]), b=map.project([t2lng(x+1,z),t2lat(y+1,z)]);
@@ -621,7 +638,7 @@ function placeLoss(){
 }
 map.on('move',()=>{ if(lossAdded) placeLoss(); });
 function addLossLayers(){ lossAdded=true; lossov.classList.add('on'); buildLoss(); }
-function lossShow(y){ lossYear=y; lossov.querySelectorAll('.yrl').forEach(l=>l.classList.toggle('on',+l.dataset.y===y)); }
+function lossShow(y){ lossYear=y; lossov.querySelectorAll('.yrl').forEach(l=>{ const v=+l.dataset.y; l.classList.toggle('on',v<=y); l.classList.toggle('now',v===y); }); }
 /* outline trace animation */
 let traceRAF=0;
 function trace(on){
@@ -701,10 +718,14 @@ document.getElementById('replay').addEventListener('click',flySeq);
 
 /* loss animation */
 let lossTimer=0, lossI=0;
-function lossPlay(){ clearInterval(lossTimer); lossI=0; const yrs=document.querySelectorAll('.yrc');
+let playTok=0;
+async function lossPlay(){ clearInterval(lossTimer); const tok=++playTok; const yrs=document.querySelectorAll('.yrc');
+  yrs.forEach(e=>e.textContent=LOSS_YEARS[0]); lossShow(0);
+  await lossReady(); if(tok!==playTok) return;
+  lossI=0;
   const step=()=>{ const y=LOSS_YEARS[lossI]; yrs.forEach(e=>e.textContent=y); lossShow(y); lossI++; if(lossI>=LOSS_YEARS.length) clearInterval(lossTimer); };
-  step(); lossTimer=setInterval(step,RM?60:650); }
-function lossStop(){ clearInterval(lossTimer); lossAdded=false; lossov.classList.remove('on'); }
+  step(); lossTimer=setInterval(step,RM?60:600); }
+function lossStop(){ clearInterval(lossTimer); playTok++; lossAdded=false; lossov.classList.remove('on'); }
 document.querySelectorAll('.lossPlay').forEach(b=>b.addEventListener('click',lossPlay));
 const lbox=document.getElementById('lbox'), lframe=document.getElementById('lframe');
 document.getElementById('geLink').href=GE_LINK;
