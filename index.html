@@ -1,360 +1,754 @@
-<title>Presión sobre el Petén Itzá</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reserva Nimá</title>
+<meta name="description" content="Reserva Nimá — Lago Petén Itzá, Petén, Guatemala. Presentación para inversionistas.">
+<meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Archivo:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.8.0/dist/maplibre-gl.css">
 <style>
-/* Layout: cuenca primero — encabezado breve, 4 indicadores, mapa con capas, tendencia, argumento, fuentes */
+/* Layout: one persistent satellite map underneath; slides are transparent layers that steer the camera and
+   lay type over it. Dark, single-look presentation (projector + night water). */
 :root{
-  --bg:#eef0ea;        /* caliza de Petén */
-  --surface:#f8f9f5;
-  --ink:#16231f;       /* agua profunda */
-  --muted:#5b6862;
-  --line:#cdd3cb;
-  --lake:#1f6f78;      /* acento: lago */
-  --ember:#d4552b;     /* fuego */
-  --canopy:#3f7d3a;    /* selva */
-  --loss:#c2306f;      /* pérdida de cobertura */
-  --night:#e8b64a;     /* luces nocturnas */
-  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
-  --f-body:"Source Serif 4",Georgia,serif;
-  --f-data:"IBM Plex Mono",ui-monospace,monospace;
+  --ink:#071012;          /* lake at night */
+  --ink-2:#0e1c1f;
+  --bone:#ece6d8;         /* limestone */
+  --bone-dim:#a9a596;
+  --jade:#8fd3b6;         /* clear shallow water / new growth: brand accent */
+  --jade-deep:#2f7a63;
+  --ember:#ff6a3d;        /* semantic: loss, pressure */
+  --line:rgba(236,230,216,.18);
+  --f-display:"Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+  --f-body:"Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0f1715;--surface:#16211e;--ink:#e3e8e2;--muted:#9aa8a1;--line:#2a3833;
-  --lake:#56b3bc;--ember:#f07a4f;--canopy:#7bb874;--loss:#ec5e9c;--night:#f2c867;color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0f1715;--surface:#16211e;--ink:#e3e8e2;--muted:#9aa8a1;--line:#2a3833;
-  --lake:#56b3bc;--ember:#f07a4f;--canopy:#7bb874;--loss:#ec5e9c;--night:#f2c867;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;background:var(--ink);color:var(--bone);overflow:hidden}
+body{font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+#map{position:fixed;inset:0;background:var(--ink)}
+.maplibregl-ctrl-attrib{background:rgba(7,16,18,.55)!important;color:var(--bone-dim)!important;font:10px var(--f-mono)}
+.maplibregl-ctrl-attrib a{color:var(--bone-dim)!important}
+.maplibregl-ctrl-attrib-button{filter:invert(1)}
 
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
-.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px;display:grid;gap:36px}
-h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
-h1{font-size:clamp(2rem,5vw,3.4rem);font-weight:780;font-stretch:72%;line-height:1}
-h2{font-size:1.5rem;font-weight:700;font-stretch:85%}
-h3{font-size:1.05rem;font-weight:650}
-p{margin:0;max-width:66ch}
-.eyebrow{font-family:var(--f-data);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.lede{font-size:1.12rem;color:var(--muted)}
-header{display:grid;gap:14px}
-.coords{font-family:var(--f-data);font-size:.78rem;color:var(--lake)}
+/* scrims */
+#scrim{position:fixed;inset:0;pointer-events:none;transition:background .9s var(--ease),opacity .9s var(--ease)}
+#scrim.s-none{background:radial-gradient(120% 80% at 50% 50%,transparent 55%,rgba(7,16,18,.55) 100%)}
+#scrim.s-left{background:linear-gradient(90deg,rgba(7,16,18,.88) 0%,rgba(7,16,18,.55) 38%,transparent 70%)}
+#scrim.s-right{background:linear-gradient(270deg,rgba(7,16,18,.9) 0%,rgba(7,16,18,.6) 40%,transparent 72%)}
+#scrim.s-bottom{background:linear-gradient(0deg,rgba(7,16,18,.92) 0%,rgba(7,16,18,.35) 45%,transparent 70%)}
+#scrim.s-heavy{background:rgba(7,16,18,.84)}
+#scrim.s-solid{background:var(--ink)}
 
-.mapwrap{position:relative;min-width:0}
-.mapmsg{position:absolute;left:12px;right:12px;bottom:12px;z-index:1100;background:var(--surface);color:var(--ink);border:1px solid var(--ember);padding:12px 14px;font-size:.9rem;line-height:1.45;box-shadow:0 4px 18px rgba(0,0,0,.25)}
-.mapmsg strong{color:var(--ember)}
-/* indicadores */
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
-.kpi{background:var(--surface);padding:18px 18px 16px;display:grid;gap:6px;align-content:start;border-top:4px solid var(--c)}
-.kpi .n{font-family:var(--f-display);font-size:2.3rem;font-weight:760;font-stretch:70%;line-height:1;font-variant-numeric:tabular-nums;color:var(--c)}
-.kpi .l{font-size:.95rem}
-.kpi .s{font-family:var(--f-data);font-size:.7rem;color:var(--muted)}
+/* slides */
+.slide{position:fixed;inset:0;display:flex;pointer-events:none;visibility:hidden;
+  padding:clamp(28px,5vh,64px) max(16px,clamp(24px,5vw,80px)) clamp(80px,11vh,110px);
+  padding-left:max(16px,env(safe-area-inset-left,0px),clamp(24px,5vw,80px));
+  padding-right:max(16px,env(safe-area-inset-right,0px),clamp(24px,5vw,80px))}
+.slide.on{visibility:visible}
+.slide.on .i{pointer-events:auto}
+.a{opacity:0;transform:translateY(18px);transition:opacity .9s var(--ease),transform 1.1s var(--ease)}
+.slide.on .a{opacity:1;transform:none}
+.slide.on .a.d1{transition-delay:.15s}.slide.on .a.d2{transition-delay:.35s}.slide.on .a.d3{transition-delay:.6s}
+.slide.on .a.d4{transition-delay:.85s}.slide.on .a.d5{transition-delay:1.1s}.slide.on .a.d6{transition-delay:1.35s}
 
-/* mapa */
-.mapblock{display:grid;grid-template-columns:minmax(0,1fr) 320px;border:1px solid var(--line);background:var(--surface)}
-@media (max-width:860px){.mapblock{grid-template-columns:1fr}}
-#map{height:560px;min-height:380px;background:#0b1210}
-@media (max-width:860px){#map{height:420px}}
-.panel{padding:18px;display:grid;gap:16px;align-content:start;border-left:1px solid var(--line)}
-@media (max-width:860px){.panel{border-left:0;border-top:1px solid var(--line)}}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.tab{font-family:var(--f-display);font-weight:620;font-size:.9rem;text-align:left;padding:9px 10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
-.tab i{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
-.tab[aria-pressed="true"]{border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c);background:var(--surface)}
-.tab:focus-visible,.seg button:focus-visible,input:focus-visible{outline:2px solid var(--lake);outline-offset:2px}
-.ctrl{display:grid;gap:8px}
-.ctrl label{font-family:var(--f-data);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.seg{display:flex;flex-wrap:wrap;gap:4px}
-.seg button{font-family:var(--f-data);font-size:.8rem;padding:6px 9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-input[type=date],input[type=range]{width:100%;font-family:var(--f-data);font-size:.85rem;padding:6px;background:var(--bg);color:var(--ink);border:1px solid var(--line)}
-input[type=range]{padding:0;accent-color:var(--lake)}
-.legend{display:grid;gap:6px;font-family:var(--f-data);font-size:.72rem;color:var(--muted)}
-.ramp{height:10px;border:1px solid var(--line)}
-.ramp-row{display:flex;justify-content:space-between}
-.note{font-size:.9rem;color:var(--muted)}
-.note strong{color:var(--ink);font-weight:600}
-.status{font-family:var(--f-data);font-size:.72rem;padding:8px 10px;border:1px dashed var(--ember);color:var(--ink);background:color-mix(in srgb,var(--ember) 8%,transparent)}
+.eyebrow{font:500 12px/1.2 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--jade)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.display{font-size:clamp(56px,11vw,168px);line-height:.88}
+.h2{font-size:clamp(36px,5.4vw,80px);line-height:.98}
+.h3{font-size:clamp(22px,2.4vw,34px);line-height:1.1}
+em{font-style:italic;color:var(--jade)}
+.lede{font-size:clamp(16px,1.4vw,20px);color:var(--bone-dim);max-width:42ch;font-weight:300}
+.note{font:400 11px/1.5 var(--f-mono);color:var(--bone-dim);max-width:70ch;letter-spacing:.02em}
+.rule{height:1px;background:var(--line);width:100%}
+.stack{display:flex;flex-direction:column;gap:18px;min-width:0}
 
-/* tendencia + argumento */
-.two{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
-@media (max-width:860px){.two{grid-template-columns:1fr}}
-.card{background:var(--surface);border:1px solid var(--line);padding:20px;display:grid;gap:14px;min-width:0}
-.chart{width:100%;height:auto;overflow:visible}
-.chart text{font-family:var(--f-data);font-size:11px;fill:var(--muted)}
-.chart .val{fill:var(--ink);font-size:12px;font-weight:500}
-.table{width:100%;border-collapse:collapse;font-size:.92rem}
-.table th{font-family:var(--f-data);font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:right;font-weight:500;padding:6px 4px;border-bottom:1px solid var(--line)}
-.table th:first-child,.table td:first-child{text-align:left}
-.table td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;font-family:var(--f-data);font-size:.85rem}
-.table td:first-child{font-family:var(--f-body);font-size:.95rem}
-.up{color:var(--ember)}
-.args{display:grid;gap:14px;margin:0;padding:0;list-style:none}
-.args li{display:grid;grid-template-columns:28px 1fr;gap:10px}
-.args b{font-family:var(--f-data);font-size:.8rem;color:var(--lake);padding-top:3px}
-.pending{border:1px dashed var(--lake);padding:14px;font-size:.92rem;color:var(--muted)}
-footer{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:18px}
-footer ol{margin:0;padding-left:20px;display:grid;gap:4px;font-size:.85rem;color:var(--muted)}
-footer a{color:var(--lake)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* cover */
+#s-cover{align-items:flex-end}
+#s-cover .wrap{display:grid;gap:22px;width:100%}
+#s-cover .tag{font-family:var(--f-display);font-style:italic;font-size:clamp(22px,2.6vw,38px);color:var(--bone)}
+.coords{display:flex;gap:28px;flex-wrap:wrap;font:400 12px var(--f-mono);color:var(--bone-dim);letter-spacing:.06em}
 
-/* Leaflet núcleo (CSS inline, v1.9.4) */
-.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
-.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;font-family:var(--f-data);font-size:12px;outline-offset:1px}
-.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{user-select:none;-webkit-user-drag:none}
-.leaflet-tile{filter:inherit;visibility:hidden}.leaflet-tile-loaded{visibility:inherit}
-.leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;width:256px;height:256px;padding:0;mix-blend-mode:normal}
-.leaflet-container .leaflet-tile-pane img{max-width:none!important}
-.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
-.leaflet-pane>svg path{pointer-events:visibleStroke}.leaflet-interactive{cursor:pointer}
-.leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:move}
-.leaflet-control{position:relative;z-index:800;pointer-events:auto;float:left;clear:both}
-.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
-.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
-.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}
-.leaflet-fade-anim .leaflet-popup{opacity:0;transition:opacity .2s linear}.leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity:1}
-.leaflet-zoom-anim .leaflet-zoom-animated{transform-origin:0 0;transition:transform .25s cubic-bezier(0,0,.25,1)}
-.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}
-.leaflet-bar{box-shadow:0 1px 4px rgba(0,0,0,.4)}
-.leaflet-bar a{background:#fff;border-bottom:1px solid #ccc;width:30px;height:30px;line-height:30px;display:block;text-align:center;text-decoration:none;color:#111;font:bold 18px/30px system-ui}
-.leaflet-bar a:last-child{border-bottom:none}
-.leaflet-control-attribution{background:rgba(255,255,255,.82);margin:0;padding:1px 5px;color:#333;font-size:10px;line-height:1.4}
-.leaflet-control-attribution a{color:#0a5d66}
-.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}
-.leaflet-popup-content-wrapper{padding:1px;text-align:left;border-radius:2px;background:#fff;color:#16231f;box-shadow:0 3px 14px rgba(0,0,0,.4)}
-.leaflet-popup-content{margin:10px 14px;line-height:1.35;font-size:12px}
-.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-top:-1px;margin-left:-20px;overflow:hidden;pointer-events:none}
-.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;transform:rotate(45deg);background:#fff}
-.leaflet-container a.leaflet-popup-close-button{position:absolute;top:0;right:0;width:24px;height:24px;font:16px/24px system-ui;color:#757575;text-decoration:none;text-align:center}
-.leaflet-tooltip{position:absolute;padding:3px 6px;background:rgba(15,23,21,.85);color:#fff;border-radius:2px;white-space:nowrap;pointer-events:none;font-size:11px}
+/* fly-in caption */
+#s-fly{align-items:flex-end}
+.fly-cap{display:grid;gap:10px}
+.fly-cap .h2{transition:opacity .5s var(--ease)}
+.hud{position:fixed;top:max(18px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px),clamp(24px,5vw,80px));
+  text-align:right;font:400 11px/1.7 var(--f-mono);color:var(--bone-dim);letter-spacing:.06em;pointer-events:none;opacity:0;transition:opacity .6s}
+.hud.on{opacity:1}
+.hud b{color:var(--bone);font-weight:500}
+.ticks{display:flex;gap:6px}
+.ticks i{width:28px;height:2px;background:var(--line);transition:background .4s}
+.ticks i.on{background:var(--jade)}
+
+/* scale */
+#s-scale{justify-content:flex-end;align-items:center}
+.panel{width:min(520px,100%);display:grid;gap:26px}
+.big{font-family:var(--f-display);font-size:clamp(72px,10vw,150px);line-height:.85;letter-spacing:-.03em}
+.big small{font-size:.32em;letter-spacing:0;margin-left:.15em;font-style:italic;color:var(--bone-dim)}
+.rows{display:grid;gap:0}
+.row{display:grid;grid-template-columns:auto 1fr;gap:6px 22px;padding:16px 0;border-top:1px solid var(--line);align-items:baseline}
+.row .v{font:500 clamp(22px,2.2vw,30px) var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.row .k{font-size:15px;color:var(--bone)}
+.row .k span{display:block;color:var(--bone-dim);font-size:13px}
+.sw{display:inline-block;width:10px;height:10px;margin-right:8px;vertical-align:1px}
+.sw.p{background:var(--jade)}.sw.v{background:transparent;border:1px dashed var(--bone)}
+
+/* population */
+#s-pop{align-items:center}
+#s-pop .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:clamp(24px,5vw,80px);width:100%;align-items:center}
+.chart svg{width:100%;height:auto;overflow:visible}
+.chart .ax{stroke:var(--line);stroke-width:1}
+.chart .lbl{fill:var(--bone-dim);font:400 12px var(--f-mono)}
+.chart .val{fill:var(--bone);font:500 14px var(--f-mono)}
+.chart .area{fill:url(#popfill)}
+.chart .ln{fill:none;stroke:var(--ember);stroke-width:2.5;stroke-linejoin:round}
+.chart .dot{fill:var(--ink);stroke:var(--ember);stroke-width:2.5}
+.x28{font-family:var(--f-display);font-size:clamp(90px,13vw,200px);line-height:.8;color:var(--ember);letter-spacing:-.04em}
+
+/* deforestation */
+#s-loss{align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.yr{font:500 clamp(64px,9vw,128px)/.85 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.04em}
+.legend{display:flex;align-items:center;gap:10px;font:400 12px var(--f-mono);color:var(--bone-dim)}
+.legend i{width:14px;height:14px;background:#ff3d6e;display:inline-block}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{font:500 12px var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--bone);background:rgba(7,16,18,.6);
+  border:1px solid var(--line);padding:11px 16px;cursor:pointer;text-decoration:none;transition:border-color .3s,background .3s}
+.btn:hover{border-color:var(--jade);background:rgba(47,122,99,.25)}
+.btn:focus-visible,.nav button:focus-visible{outline:2px solid var(--jade);outline-offset:2px}
+.loss-stat{font-family:var(--f-display);font-size:clamp(64px,8vw,120px);line-height:.85;color:var(--ember)}
+
+/* statement */
+#s-thesis{align-items:center;justify-content:center;text-align:center}
+#s-thesis .h2{font-size:clamp(44px,7vw,112px);max-width:14ch;margin:0 auto}
+
+/* biodiversity */
+#s-bio{align-items:center}
+.bio{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(24px,5vw,90px);width:100%;align-items:end}
+.counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.count .n{font-family:var(--f-display);font-size:clamp(54px,7vw,104px);line-height:.9}
+.count .t{font:400 12px var(--f-mono);color:var(--bone-dim);text-transform:uppercase;letter-spacing:.1em;margin-top:8px}
+.local{border-top:1px solid var(--jade);padding-top:18px;display:grid;gap:10px}
+
+/* species */
+#s-fauna,#s-flora{flex-direction:column;gap:22px;justify-content:center}
+.sp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1vw,14px);width:100%;flex:0 1 auto;min-height:0}
+.sp{position:relative;overflow:hidden;aspect-ratio:4/3;max-width:100%;background:linear-gradient(140deg,var(--ink-2),var(--jade-deep))}
+.sp img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.12);transition:transform 6s var(--ease),opacity 1s;opacity:0}
+.sp img.ok{opacity:1}
+.slide.on .sp img{transform:scale(1)}
+.sp figcaption{position:absolute;inset:auto 0 0 0;padding:28px 14px 12px;background:linear-gradient(0deg,rgba(7,16,18,.92),transparent);display:grid;gap:2px}
+.sp .cn{font-family:var(--f-display);font-size:clamp(18px,1.7vw,26px);line-height:1.05}
+.sp .sn{font:italic 400 12px var(--f-body);color:var(--bone-dim)}
+.sp .st{position:absolute;top:10px;right:10px;font:500 10px var(--f-mono);letter-spacing:.08em;padding:4px 7px;background:rgba(7,16,18,.75);border:1px solid var(--line);text-transform:uppercase}
+.sp .st.en{border-color:var(--ember);color:var(--ember)}
+.sp .st.cr{background:var(--ember);color:var(--ink);border-color:var(--ember)}
+.sp .st.nt,.sp .st.vu{border-color:#e7c46a;color:#e7c46a}
+.sp .alt{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-style:italic;color:var(--bone-dim);font-size:22px}
+.sp-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;width:100%}
+.flora-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;width:100%}
+.flora-grid .sp{aspect-ratio:16/10}
+.slide.on .sp:nth-child(1){transition-delay:.1s}
+.sp.a:nth-child(2){transition-delay:.2s}.sp.a:nth-child(3){transition-delay:.3s}.sp.a:nth-child(4){transition-delay:.4s}
+.sp.a:nth-child(5){transition-delay:.5s}.sp.a:nth-child(6){transition-delay:.6s}
+
+/* corridor */
+#s-corr{align-items:flex-start}
+.corr{display:grid;gap:16px;max-width:520px}
+.key{display:grid;gap:10px;font-size:14px}
+.key div{display:flex;align-items:center;gap:12px}
+.key i{width:26px;height:3px;display:inline-block}
+
+/* frontiers diagram */
+#s-front{flex-direction:column;justify-content:center;gap:22px}
+.fr-wrap{width:100%;flex:1 1 auto;min-height:0;display:flex}
+.fr-wrap svg{width:100%;height:100%;max-height:62vh}
+.fr-band{opacity:0;transition:opacity .9s var(--ease)}
+.slide.on .fr-band{opacity:1}
+.slide.on .fr-band.b2{transition-delay:.3s}.slide.on .fr-band.b3{transition-delay:.6s}.slide.on .fr-band.b4{transition-delay:.9s}.slide.on .fr-band.b5{transition-delay:1.2s}
+.press{animation:push 2.6s var(--ease) infinite}
+@keyframes push{0%{transform:translateY(40px);opacity:0}30%{opacity:1}70%{transform:translateY(0);opacity:1}100%{transform:translateY(0);opacity:0}}
+.flowline{stroke-dasharray:6 10;animation:flow 1.4s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.fr-wrap text{font-family:var(--f-mono);font-size:13px;letter-spacing:.06em;fill:var(--bone)}
+.fr-wrap .ttl{font-family:var(--f-display);font-size:24px;letter-spacing:0}
+.fr-wrap .dim{fill:var(--bone-dim)}
+
+/* returns */
+#s-ret{align-items:center}
+.ret{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;width:100%;border-top:1px solid var(--line)}
+.ret > div{padding:28px clamp(0px,3vw,48px) 0 0;display:grid;gap:18px;align-content:start;min-width:0}
+.ret > div + div{border-left:1px solid var(--line);padding-left:clamp(16px,3vw,48px)}
+.ret ul{list-style:none;margin:0;padding:0;display:grid;gap:12px;font-size:clamp(16px,1.4vw,20px);font-weight:300}
+.ret li::before{content:"";display:inline-block;width:16px;height:1px;background:var(--jade);vertical-align:middle;margin-right:14px}
+.plus{font-family:var(--f-display);font-size:clamp(28px,3vw,44px);font-style:italic;color:var(--jade)}
+
+/* close */
+#s-close{align-items:center;justify-content:center;text-align:center}
+#s-close .wrap{display:grid;gap:26px;justify-items:center}
+.sig{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;font:400 12px var(--f-mono);color:var(--bone-dim);letter-spacing:.1em;text-transform:uppercase}
+.sig b{display:block;color:var(--bone);font-weight:500;margin-top:6px;letter-spacing:.04em}
+
+/* sources */
+#s-src{flex-direction:column;gap:20px;overflow:auto}
+.src{columns:2 320px;column-gap:48px;font-size:13px;line-height:1.55;color:var(--bone-dim)}
+.src p{margin:0 0 12px;break-inside:avoid}
+.src a{color:var(--bone);text-decoration-color:var(--line);text-underline-offset:3px}
+.src b{color:var(--jade);font:500 11px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;display:block;margin:6px 0 6px}
+
+/* chrome */
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:14px max(16px,env(safe-area-inset-right,0px),clamp(24px,5vw,80px)) max(14px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px),clamp(24px,5vw,80px));
+  font:400 11px var(--f-mono);letter-spacing:.1em;color:var(--bone-dim);z-index:20}
+.brand{text-transform:uppercase}
+.brand b{color:var(--bone);font-weight:500}
+.ctr{display:flex;align-items:center;gap:14px}
+.nav button{background:none;border:1px solid var(--line);color:var(--bone);width:38px;height:38px;cursor:pointer;font:16px var(--f-mono);transition:border-color .3s}
+.nav button:hover{border-color:var(--jade)}
+.bar{position:fixed;left:0;top:0;height:2px;background:var(--jade);z-index:21;transition:width .8s var(--ease)}
+#lbox{position:fixed;inset:0;z-index:40;background:rgba(7,16,18,.94);display:grid;grid-template-rows:auto 1fr;gap:12px;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#lbox iframe{width:100%;height:100%;border:0;background:var(--ink-2)}
+#lbox .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+
+.mk{font:500 11px var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--bone);text-shadow:0 1px 8px rgba(0,0,0,.9);
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .8s}
+.mk.on{opacity:1}
+.mk.big{font-family:var(--f-display);font-size:22px;letter-spacing:.02em;text-transform:none;font-style:italic;font-weight:400}
+.mk.ha{font:500 13px var(--f-mono);letter-spacing:.04em;text-transform:none;background:rgba(7,16,18,.7);padding:5px 8px;border-left:2px solid var(--jade)}
+.mk.ha.v{border-left-color:var(--bone)}
+
+@media (max-width:800px){
+  #s-pop .grid,.bio,.ret{grid-template-columns:1fr}
+  .ret > div + div{border-left:0;border-top:1px solid var(--line);padding-left:0;margin-top:24px}
+  .sp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .counts{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .slide{overflow-y:auto}
+  .hud{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .a,.sp img,.fr-band{transition:none!important}
+  .press,.flowline{animation:none}
+}
 </style>
+</head>
+<body>
+<div id="map" aria-label="Mapa satelital"></div>
+<div id="scrim" class="s-none"></div>
+<div class="bar" id="bar"></div>
 
-<div class="wrap">
-  <header>
-    <span class="eyebrow">Cuenca del lago Petén Itzá · Flores, San Benito, San Andrés, San José</span>
-    <h1>La presión sobre el Petén Itzá ya es visible desde el espacio</h1>
-    <p class="lede">Población en aumento, temporadas de incendios cada vez más extensas y bosque que se convierte en potrero. Las instituciones no alcanzan a contenerlo. Este tablero reúne datos públicos para mostrar por qué la protección de la orilla norte necesita un vehículo privado de conservación.</p>
-    <span class="coords">16.98° N · 89.83° O · 110 m s.n.m.</span>
-  </header>
-
-  <section class="kpis" aria-label="Indicadores clave">
-    <div class="kpi" style="--c:var(--lake)">
-      <span class="n">+75%</span>
-      <span class="l">Población de Petén entre el censo 2002 y la proyección 2023</span>
-      <span class="s">366,735 → 640,151 hab. · INE</span>
-    </div>
-    <div class="kpi" style="--c:var(--ember)">
-      <span class="n">234,559 ha</span>
-      <span class="l">Áreas protegidas de Petén afectadas por incendios, temporada 2023‑24</span>
-      <span class="s">197,795 ha dentro de la Reserva de Biosfera Maya · CONAP</span>
-    </div>
-    <div class="kpi" style="--c:var(--loss)">
-      <span class="n">−23%</span>
-      <span class="l">Cobertura arbórea de Guatemala perdida entre 2001 y 2023</span>
-      <span class="s">1.75 millones de ha · Global Forest Watch</span>
-    </div>
-    <div class="kpi" style="--c:var(--canopy)">
-      <span class="n">15.4%</span>
-      <span class="l">Bosque de fincas privadas de la cuenca del lago convertido a otro uso, 1986–2001</span>
-      <span class="s">Catastro de 1,085 fincas · CATIE</span>
-    </div>
-  </section>
-
-  <section class="mapblock" aria-label="Mapa de la cuenca">
-    <div class="mapwrap"><div id="map" role="region" aria-label="Mapa interactivo del lago Petén Itzá"></div><div class="mapmsg" id="mapmsg" hidden><strong>Vista previa sin imágenes satelitales.</strong> Esta ventana de Claude bloquea los servidores de NASA, Esri y Global Forest Watch. Descarga el archivo <em>presion_peten_itza.html</em> y ábrelo con doble clic en Chrome, Safari o Edge, o incrústalo en tu sitio: ahí las cuatro capas cargan en vivo. El contorno del lago que ves aquí es esquemático.</div></div>
-    <div class="panel">
-      <div class="ctrl">
-        <label>Capa</label>
-        <div class="tabs" id="tabs">
-          <button class="tab" data-layer="pop" style="--c:var(--lake)" aria-pressed="true"><i></i>Población</button>
-          <button class="tab" data-layer="night" style="--c:var(--night)" aria-pressed="false"><i></i>Luces nocturnas</button>
-          <button class="tab" data-layer="fire" style="--c:var(--ember)" aria-pressed="false"><i></i>Incendios</button>
-          <button class="tab" data-layer="loss" style="--c:var(--loss)" aria-pressed="false"><i></i>Deforestación</button>
-        </div>
-      </div>
-
-      <div class="ctrl" id="ctrl-pop">
-        <label>Año (densidad GPW)</label>
-        <div class="seg" data-group="pop">
-          <button data-v="2000" aria-pressed="false">2000</button><button data-v="2005" aria-pressed="false">2005</button><button data-v="2010" aria-pressed="false">2010</button><button data-v="2015" aria-pressed="false">2015</button><button data-v="2020" aria-pressed="true">2020</button>
-        </div>
-      </div>
-      <div class="ctrl" id="ctrl-night" hidden>
-        <label>Año (Black Marble)</label>
-        <div class="seg" data-group="night">
-          <button data-v="2012-01-01" aria-pressed="false">2012</button><button data-v="2016-01-01" aria-pressed="true">2016</button>
-        </div>
-      </div>
-      <div class="ctrl" id="ctrl-fire" hidden>
-        <label for="fireDate">Fecha de detección (VIIRS 375 m)</label>
-        <input type="date" id="fireDate" value="2024-05-12" min="2012-01-20" max="2026-10-17">
-        <div class="seg" data-group="fire">
-          <button data-v="2024-04-24" aria-pressed="false">24 abr 2024</button><button data-v="2024-05-12" aria-pressed="true">12 may 2024</button><button data-v="2019-05-05" aria-pressed="false">5 may 2019</button>
-        </div>
-      </div>
-      <div class="ctrl" id="ctrl-loss" hidden>
-        <label for="lossYear">Pérdida acumulada 2001 → <span id="lossYearOut">2024</span></label>
-        <input type="range" id="lossYear" min="2002" max="2024" step="1" value="2024">
-      </div>
-
-      <div class="legend" id="legend"></div>
-      <p class="note" id="layerNote"></p>
-      <div class="status" id="status" hidden></div>
-    </div>
-  </section>
-
-  <section class="two">
-    <div class="card">
-      <span class="eyebrow">Tendencia demográfica</span>
-      <h2>Petén suma casi 275 mil habitantes en dos décadas</h2>
-      <svg class="chart" viewBox="0 0 560 250" role="img" aria-label="Población de Petén: 366,735 en 2002, 563,832 en 2008, 595,548 en 2018 y 640,151 en 2023">
-        <g id="chartG"></g>
-      </svg>
-      <p class="note">2002: censo. 2008 y 2018: estimaciones a mitad de año. 2023: proyección. Las cifras provienen de metodologías distintas del INE y se comparan como orden de magnitud.</p>
-      <table class="table" aria-label="Municipios que rodean el lago">
-        <thead><tr><th>Municipio en la orilla</th><th>2018</th><th>2023</th><th>Cambio</th></tr></thead>
-        <tbody>
-          <tr><td>San Benito</td><td>50,701</td><td>55,065</td><td class="up">+8.6%</td></tr>
-          <tr><td>Flores</td><td>41,166</td><td>45,560</td><td class="up">+10.7%</td></tr>
-          <tr><td>San Andrés</td><td>34,160</td><td>35,777</td><td class="up">+4.7%</td></tr>
-          <tr><td>San José</td><td>7,034</td><td>7,323</td><td class="up">+4.1%</td></tr>
-          <tr><td><strong>Total cuenca</strong></td><td>133,061</td><td>143,725</td><td class="up">+8.0%</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <span class="eyebrow">La necesidad</span>
-      <h2>Por qué una reserva privada junto al lago</h2>
-      <ul class="args">
-        <li><b>A</b><p>El crecimiento urbano de Flores y San Benito avanza hacia orillas que hoy siguen boscosas. Cada año sin protección legal es frente lacustre disponible para lotificación.</p></li>
-        <li><b>B</b><p>El fuego es recurrente. En 2023‑24 Petén concentró casi todas las hectáreas quemadas en áreas protegidas del país, y la mayoría de incendios se atribuyen a quemas provocadas.</p></li>
-        <li><b>C</b><p>La ganadería ha sido el principal motor de deforestación en Guatemala en las últimas décadas. La conversión a potrero empieza por el bosque sin dueño activo.</p></li>
-        <li><b>D</b><p>Las capacidades de CONAP y de los municipios no alcanzan para vigilar y manejar este territorio. Un propietario privado con mandato de conservación puede custodiar, restaurar y conectar el corredor de fauna de forma continua.</p></li>
-      </ul>
-      <div class="pending"><strong>Ubicación de la reserva propuesta:</strong> pendiente de polígono. Al recibir los linderos (KMZ, DWG georreferenciado o coordenadas de vértices) se dibuja en el mapa junto a los predios vecinos.</div>
-    </div>
-  </section>
-
-  <footer>
-    <span class="eyebrow">Fuentes y atribuciones</span>
-    <ol>
-      <li>Población: INE Guatemala, censo 2002, estimaciones 2008 y 2018, proyección 2023, vía <a href="https://citypopulation.de/en/guatemala/admin/17__petén/" target="_blank" rel="noopener">CityPopulation</a> y <a href="https://simple.wikipedia.com/wiki/Pet%C3%A9n_(department)" target="_blank" rel="noopener">censo 2002</a>.</li>
-      <li>Densidad de población en el mapa: NASA SEDAC, Gridded Population of the World v4, servido por NASA GIBS.</li>
-      <li>Luces nocturnas: NASA Black Marble (VIIRS), servido por NASA GIBS.</li>
-      <li>Incendios: NASA FIRMS, anomalías térmicas VIIRS 375 m, servido por NASA GIBS. Cifras de temporada: <a href="https://agn.gt/?p=393499" target="_blank" rel="noopener">CONAP vía AGN, nov. 2024</a>.</li>
-      <li>Deforestación: Hansen/UMD/Google/USGS/NASA, pérdida de cobertura arbórea (CC BY 4.0), vía <a href="https://www.globalforestwatch.org/" target="_blank" rel="noopener">Global Forest Watch</a>. Dato nacional: <a href="https://opsaa.iica.int/en/evidences-664-" target="_blank" rel="noopener">GFW 2024 vía IICA</a>.</li>
-      <li>Cuenca 1986–2001: Milián et al., <a href="https://repositorio.catie.ac.cr/handle/11554/6847" target="_blank" rel="noopener">Tenencia y uso de la tierra en la cuenca del lago Petén Itzá</a>, CATIE, 2004.</li>
-      <li>Motores de deforestación: <a href="https://science.nasa.gov/?p=1077485" target="_blank" rel="noopener">NASA Earth Observatory, The Shrinking Selva Maya</a>.</li>
-      <li>Mapa base: Esri World Imagery; CARTO. Uso educativo, sin fines comerciales.</li>
-    </ol>
-  </footer>
+<div class="hud" id="hud">
+  <div class="ticks" id="ticks"><i></i><i></i><i></i><i></i><i></i></div>
+  <div style="margin-top:8px"><b id="hlat">16.9772° N</b> &nbsp; <b id="hlng">89.8557° O</b></div>
+  <div>ALT ≈ <b id="halt">—</b></div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<!-- 0 · Portada -->
+<section class="slide" id="s-cover" data-map="globe" data-scrim="s-bottom">
+  <div class="wrap">
+    <div class="coords a"><span>16.9772° N · 89.8557° O</span><span>Lago Petén Itzá</span><span>Petén, Guatemala</span></div>
+    <h1 class="display a d1">Reserva<br><em>Nimá</em></h1>
+    <div class="rule a d2"></div>
+    <div class="tag a d3">Comprar para preservar.</div>
+  </div>
+</section>
+
+<!-- 1 · Fly-in -->
+<section class="slide" id="s-fly" data-map="fly" data-scrim="s-bottom">
+  <div class="fly-cap i">
+    <div class="eyebrow" id="flyEy">Aproximación</div>
+    <h2 class="h2" id="flyT">Centroamérica</h2>
+    <div class="btns" style="margin-top:8px"><button class="btn" id="replay" type="button">Repetir vuelo</button></div>
+  </div>
+</section>
+
+<!-- 2 · Escala -->
+<section class="slide" id="s-scale" data-map="site" data-scrim="s-right">
+  <div class="panel i">
+    <div class="eyebrow a">Reserva Nimá · superficie total</div>
+    <div class="big a d1"><span class="cu" data-to="165.8" data-dec="1">0</span><small>ha</small></div>
+    <div class="rows a d2">
+      <div class="row"><div class="v"><span class="sw p"></span>42.2 ha</div><div class="k">Lotes A · B · C<span>Propiedad de Pablo Arenales</span></div></div>
+      <div class="row"><div class="v"><span class="sw v"></span>≈ 123.6 ha</div><div class="k">Reserva complementaria<span>Adquisición propuesta vía ONG ambiental</span></div></div>
+      <div class="row"><div class="v">791 m</div><div class="k">Frente al lago<span>Lotes A–C, lineales</span></div></div>
+    </div>
+    <p class="note a d3">Lotes A–C según plano A001 (72,660 · 133,050 · 216,025 m²). Reserva complementaria calculada del levantamiento georreferenciado; sujeta a verificación registral.</p>
+  </div>
+</section>
+
+<!-- 3 · Población -->
+<section class="slide" id="s-pop" data-map="region" data-scrim="s-heavy">
+  <div class="grid i">
+    <div class="stack">
+      <div class="eyebrow a">Departamento de Petén · población</div>
+      <div class="x28 a d1">×28</div>
+      <h2 class="h3 a d2">De 21 mil habitantes en 1960 a casi 600 mil en 2018.</h2>
+      <p class="lede a d3">La colonización, la frontera agrícola y la migración convergen sobre la cuenca del lago.</p>
+    </div>
+    <div class="chart a d2">
+      <svg viewBox="0 0 640 380" role="img" aria-label="Población de Petén 1960–2018">
+        <defs><linearGradient id="popfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6a3d" stop-opacity=".35"/><stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/></linearGradient></defs>
+        <g id="popg"></g>
+      </svg>
+      <p class="note">Fuentes: 1960 PBI Guatemala · 1973 SEGEPLAN · 2002 Censo INE · 2018 estimación oficial INE.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · Deforestación -->
+<section class="slide" id="s-loss" data-map="loss" data-scrim="s-left">
+  <div class="stack i" style="max-width:560px">
+    <div class="eyebrow a">Pérdida de cobertura arbórea · cuenca del lago</div>
+    <div class="yr a d1" id="yr">2001</div>
+    <div class="legend a d2"><i></i>Bosque perdido acumulado desde 2001 · UMD / Global Forest Watch</div>
+    <div class="btns a d3">
+      <button class="btn" id="lossPlay" type="button">Reproducir</button>
+      <button class="btn" id="landsat" type="button">Timelapse Landsat 1984–2022</button>
+    </div>
+  </div>
+  <div class="stack i" style="max-width:360px;align-items:flex-start">
+    <div class="loss-stat a d3">−33%</div>
+    <p class="lede a d4" style="max-width:28ch">del bosque de Petén perdido entre 2001 y 2023.</p>
+    <p class="note a d4">NASA Earth Observatory, 2024 · datos Landsat, Univ. de Maryland.</p>
+  </div>
+</section>
+
+<!-- 5 · Tesis -->
+<section class="slide" id="s-thesis" data-map="site-glow" data-scrim="s-heavy">
+  <div class="stack i" style="align-items:center">
+    <div class="eyebrow a">La oportunidad</div>
+    <h2 class="h2 a d1">Lo que no se protege, <em>se fragmenta.</em></h2>
+    <p class="lede a d2" style="text-align:center">Comprar hoy es la forma más directa de preservar la orilla del lago.</p>
+  </div>
+</section>
+
+<!-- 6 · Biodiversidad -->
+<section class="slide" id="s-bio" data-map="tikal" data-scrim="s-heavy">
+  <div class="bio i">
+    <div class="stack">
+      <div class="eyebrow a">Selva Maya</div>
+      <h2 class="h2 a d1">El segundo bosque tropical más grande de <em>América.</em></h2>
+      <div class="counts a d2">
+        <div class="count"><div class="n cu" data-to="513">0</div><div class="t">Aves</div></div>
+        <div class="count"><div class="n cu" data-to="122">0</div><div class="t">Mamíferos</div></div>
+        <div class="count"><div class="n cu" data-to="95">0</div><div class="t">Reptiles</div></div>
+      </div>
+      <p class="note a d3">Especies registradas en la Reserva de la Biosfera Maya · TNC · Yale e360 / WCS.</p>
+    </div>
+    <div class="local a d4">
+      <div class="eyebrow">Mismo lago · Biotopo Cerro Cahuí</div>
+      <p class="h3">Jaguar registrado en la orilla norte del Petén Itzá.</p>
+      <p class="mono" style="color:var(--bone-dim);font-size:13px;margin:0">82 aves · 29 mamíferos · 17 reptiles</p>
+      <p class="note">El registro de jaguar y murciélagos de bosque maduro indica conectividad con el bosque de Tikal. USAC / CECON.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · Fauna -->
+<section class="slide" id="s-fauna" data-map="tikal" data-scrim="s-solid">
+  <div class="sp-head i">
+    <div class="stack" style="gap:8px"><div class="eyebrow a">Fauna</div><h2 class="h3 a d1">Especies documentadas en la Selva Maya y la cuenca del lago</h2></div>
+    <div class="note a d1">UICN: <span style="color:#e7c46a">NT</span> casi amenazada · <span style="color:var(--ember)">EN</span> en peligro</div>
+  </div>
+  <div class="sp-grid i">
+    <figure class="sp a" style="margin:0"><img data-file="Jaguar_(Panthera_onca_palustris)_male_Rio_Negro_2.JPG" alt="Jaguar"><span class="st nt">NT</span><figcaption><span class="cn">Jaguar</span><span class="sn">Panthera onca</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Tapirus_bairdii_-Franklin_Park_Zoo,_Massachusetts,_USA-8a.jpg" alt="Tapir centroamericano"><span class="st en">EN</span><figcaption><span class="cn">Tapir</span><span class="sn">Tapirus bairdii</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Scarlet_Macaw_(Ara_macao)_in_flight-2.jpg" alt="Guacamaya roja"><span class="st">≈200 · RBM</span><figcaption><span class="cn">Guacamaya roja</span><span class="sn">Ara macao</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Yucatán_black_howler_(Alouatta_pigra)_Cayo.jpg" alt="Saraguate"><span class="st en">EN</span><figcaption><span class="cn">Saraguate</span><span class="sn">Alouatta pigra</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Geoffroy's_spider_monkey_(Ateles_geoffroyi_yucatanensis)_Peten_2.jpg" alt="Mono araña"><span class="st en">EN</span><figcaption><span class="cn">Mono araña</span><span class="sn">Ateles geoffroyi</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Crocodylus_moreletii,_Morelet’s_Crocodile,_Laguna_del_Carppintero.jpg" alt="Cocodrilo de pantano"><span class="st">Cerro Cahuí</span><figcaption><span class="cn">Cocodrilo de pantano</span><span class="sn">Crocodylus moreletii</span></figcaption></figure>
+  </div>
+</section>
+
+<!-- 8 · Flora -->
+<section class="slide" id="s-flora" data-map="tikal" data-scrim="s-solid">
+  <div class="sp-head i">
+    <div class="stack" style="gap:8px"><div class="eyebrow a">Flora</div><h2 class="h3 a d1">El dosel que sostiene todo lo demás</h2></div>
+  </div>
+  <div class="flora-grid i">
+    <figure class="sp a" style="margin:0"><img data-file="Ceiba_pentandra_(2287675871).jpg" alt="Ceiba"><span class="st">Árbol nacional</span><figcaption><span class="cn">Ceiba</span><span class="sn">Ceiba pentandra · árbol sagrado maya</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Swietenia_macrophylla_(30680883066).jpg" alt="Caoba"><span class="st vu">VU</span><figcaption><span class="cn">Caoba</span><span class="sn">Swietenia macrophylla · recuperada por concesiones comunitarias</span></figcaption></figure>
+  </div>
+</section>
+
+<!-- 9 · Corredor -->
+<section class="slide" id="s-corr" data-map="corridor" data-scrim="s-left">
+  <div class="corr i">
+    <div class="eyebrow a">Corredor biológico</div>
+    <h2 class="h2 a d1">Del bosque <em>al agua.</em></h2>
+    <p class="lede a d2">Una franja continua que permite a la fauna llegar a la orilla del lago sin cruzar zonas desarrolladas.</p>
+    <div class="key a d3">
+      <div><i style="background:var(--jade)"></i>Recorrido de fauna · concepto</div>
+      <div><i style="background:repeating-linear-gradient(90deg,var(--bone) 0 6px,transparent 6px 10px)"></i>Caminos existentes</div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · Fronteras -->
+<section class="slide" id="s-front" data-map="site" data-scrim="s-solid">
+  <div class="sp-head i">
+    <div class="stack" style="gap:8px"><div class="eyebrow a">Fronteras de desarrollo</div><h2 class="h3 a d1">Proyectos que generan valor y, a la vez, protegen el borde</h2></div>
+    <div class="note a d1">Esquema conceptual · programa por definir</div>
+  </div>
+  <div class="fr-wrap i">
+    <svg viewBox="0 0 1000 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Esquema de fronteras de desarrollo">
+      <defs>
+        <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#8fd3b6" stroke-opacity=".35" stroke-width="2"/></pattern>
+        <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f3b44"/><stop offset="1" stop-color="#16525a"/></linearGradient>
+        <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff6a3d"/></marker>
+        <marker id="aj" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8fd3b6"/></marker>
+      </defs>
+      <g class="fr-band b1"><rect x="0" y="0" width="1000" height="70" fill="url(#water)"/><text x="24" y="42" class="ttl">Lago Petén Itzá</text><text x="976" y="42" text-anchor="end" class="dim">NORTE ↑</text></g>
+      <g class="fr-band b2"><rect x="0" y="70" width="640" height="190" fill="#11231f"/><rect x="0" y="70" width="640" height="190" fill="url(#hatch)"/>
+        <text x="24" y="112" class="ttl">Reserva núcleo</text><text x="24" y="138" class="dim">Bosque protegido · desarrollo de baja densidad</text></g>
+      <g class="fr-band b3"><rect x="640" y="70" width="140" height="300" fill="#173a30"/>
+        <text x="700" y="112" text-anchor="middle" class="ttl" style="font-size:20px">Corredor</text><text x="700" y="134" text-anchor="middle" class="dim">biológico</text>
+        <line x1="760" y1="360" x2="760" y2="84" stroke="#8fd3b6" stroke-width="3" class="flowline" marker-end="url(#aj)"/>
+        <text x="700" y="300" text-anchor="middle" class="dim" style="font-size:11px">acceso de</text><text x="700" y="316" text-anchor="middle" class="dim" style="font-size:11px">fauna al agua</text></g>
+      <g class="fr-band b2"><rect x="780" y="70" width="220" height="190" fill="#11231f"/><rect x="780" y="70" width="220" height="190" fill="url(#hatch)"/>
+        <text x="800" y="112" class="ttl">Reserva</text><text x="800" y="138" class="dim">complementaria · ONG</text></g>
+      <g class="fr-band b4"><rect x="0" y="260" width="640" height="110" fill="#1e2a22" stroke="#8fd3b6" stroke-width="1.5"/>
+        <text x="24" y="302" class="ttl">Frontera sur</text><text x="24" y="330" class="dim">Escuela de ciencias naturales · turismo ecológico</text>
+        <rect x="780" y="260" width="220" height="110" fill="#1e2a22" stroke="#8fd3b6" stroke-width="1.5"/><text x="800" y="320" class="dim">Borde activo</text></g>
+      <line class="fr-band b4" x1="0" y1="370" x2="1000" y2="370" stroke="#8fd3b6" stroke-width="2"/>
+      <g class="fr-band b5">
+        <text x="500" y="455" text-anchor="middle" class="dim" style="fill:#ff6a3d">EXPANSIÓN URBANA Y AGRÍCOLA</text>
+        <g class="press"><line x1="120" y1="430" x2="120" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
+        <g class="press" style="animation-delay:.6s"><line x1="320" y1="430" x2="320" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
+        <g class="press" style="animation-delay:1.2s"><line x1="560" y1="430" x2="560" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
+        <g class="press" style="animation-delay:.3s"><line x1="880" y1="430" x2="880" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- 11 · Retornos -->
+<section class="slide" id="s-ret" data-map="site" data-scrim="s-heavy">
+  <div class="stack i" style="width:100%;gap:30px">
+    <div class="eyebrow a">Tesis de inversión</div>
+    <h2 class="h2 a d1">Un activo, <em>dos retornos.</em></h2>
+    <div class="ret a d2">
+      <div><div class="plus">Rentabilidad</div><ul>
+        <li>Eco-resort y residencial de baja densidad</li><li>Turismo ecológico y educativo</li><li>Certificación EarthCheck / Green Globe</li></ul></div>
+      <div><div class="plus">Conservación</div><ul>
+        <li>Corredor biológico hacia el lago</li><li>Reserva complementaria vía ONG</li><li>Escuela de ciencias naturales</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 · Cierre -->
+<section class="slide" id="s-close" data-map="site-glow" data-scrim="s-bottom">
+  <div class="wrap i">
+    <div class="eyebrow a">Lago Petén Itzá · Petén, Guatemala</div>
+    <h2 class="display a d1">Reserva <em>Nimá</em></h2>
+    <div class="tag a d2" style="font-family:var(--f-display);font-style:italic;font-size:clamp(20px,2.4vw,34px)">Comprar. Preservar. Desarrollar con límites.</div>
+    <div class="sig a d3"><div>Propietario<b>Pablo Arenales</b></div><div>Estrategia y diseño<b>TORUS.</b></div></div>
+  </div>
+</section>
+
+<!-- 13 · Fuentes -->
+<section class="slide" id="s-src" data-map="site" data-scrim="s-solid">
+  <div class="i" style="display:grid;gap:20px;width:100%">
+    <div class="eyebrow">Fuentes</div>
+    <div class="src">
+      <p><b>Población</b><a href="https://pbi-guatemala.org/fileadmin/user_files/projects/guatemala/files/english/PBI-Special-bulletin-el-peten.pdf" target="_blank" rel="noopener">PBI Guatemala, boletín especial El Petén</a> (≈21,000 hab. en 1960) · <a href="https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2022/05/1700_PETEN.pdf" target="_blank" rel="noopener">SEGEPLAN, Diagnóstico Territorial de Petén</a> (≈64,000 en 1973) · <a href="https://en.wikipedia.org/wiki/Pet%C3%A9n_Department" target="_blank" rel="noopener">INE vía Wikipedia, Petén Department</a> (366,735 en 2002; 595,548 en 2018).</p>
+      <p><b>Deforestación</b><a href="https://science.nasa.gov/earth/earth-observatory/the-shrinking-selva-maya-152940" target="_blank" rel="noopener">NASA Earth Observatory, “The Shrinking Selva Maya” (2024)</a> · Capa de pérdida: Hansen/UMD/Google/USGS/NASA vía <a href="https://data-api.globalforestwatch.org/dataset/umd_tree_cover_loss" target="_blank" rel="noopener">Global Forest Watch</a> · Timelapse Landsat: Google Earth Engine.</p>
+      <p><b>Biodiversidad</b><a href="https://www.nature.org/es-us/sobre-tnc/donde-trabajamos/tnc-en-latinoamerica/guatemala/paisajes-iconicos/" target="_blank" rel="noopener">The Nature Conservancy, Guatemala: paisajes icónicos</a> · <a href="https://www.nature.org/es-us/sobre-tnc/donde-trabajamos/tnc-en-latinoamerica/mexico/selva-maya/" target="_blank" rel="noopener">TNC, Selva Maya</a> · <a href="https://e360.yale.edu/features/in_the_land_of_the_maya_a_battle_for_a_vital_forest" target="_blank" rel="noopener">Yale e360, In the Land of the Maya</a> (513 aves, 122 mamíferos, 95 reptiles; ≈200 guacamayas) · <a href="https://guatemala.wcs.org/es-es/Sobre-nosotros/Noticias/articleType/ArticleView/articleId/25169/Corredor-Biocultural-Gran-Selva-Maya-alianza-transfronteriza-para-la-proteccion-del-mayor-bosque-continuo-de-la-region.aspx" target="_blank" rel="noopener">WCS Guatemala, Corredor Biocultural Gran Selva Maya</a> · <a href="https://digi.usac.edu.gt/bvirtual/resumenes2010/inf1001.html" target="_blank" rel="noopener">USAC/DIGI, Biotopo Cerro Cahuí</a> · <a href="https://es.mongabay.com/2016/12/guatemala-las-comunidades-salvaron-la-caoba-la-reserva-la-biosfera-maya/" target="_blank" rel="noopener">Mongabay, la caoba en la RBM</a> · Estados de conservación: Lista Roja UICN.</p>
+      <p><b>Fotografías</b>Wikimedia Commons, licencias Creative Commons: <span id="credits"></span></p>
+      <p><b>Cartografía</b>Imágenes satelitales Esri World Imagery (Esri, Maxar, Earthstar Geographics) · Relieve: Mapzen/AWS Terrain Tiles · Linderos: levantamiento RESERVA NIMA (KMZ) y plano A001, TORUS 2026.</p>
+    </div>
+  </div>
+</section>
+
+<nav class="nav" aria-label="Navegación">
+  <div class="brand"><b>Reserva Nimá</b> · Confidencial</div>
+  <div class="ctr"><button type="button" id="prev" aria-label="Anterior">←</button><span class="mono" id="ctr">01 / 14</span><button type="button" id="next" aria-label="Siguiente">→</button></div>
+</nav>
+
+<div id="lbox" hidden>
+  <div class="top"><span class="eyebrow">Google Earth Engine · Landsat 1984–2022</span>
+    <div class="btns"><a class="btn" id="geLink" target="_blank" rel="noopener" href="#">Abrir en Google Earth ↗</a><button class="btn" id="lclose" type="button">Cerrar</button></div></div>
+  <iframe id="lframe" title="Timelapse Landsat" allowfullscreen></iframe>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@5.8.0/dist/maplibre-gl.js"></script>
 <script>
-(function(){
-  const GIBS = "https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi";
-  const statusEl = document.getElementById('status');
-  const legendEl = document.getElementById('legend');
-  const noteEl = document.getElementById('layerNote');
-  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+(() => {
+const GEO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"kind":"pablo","id":"P3","name":"Lote A","area":"72,660 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.847266,16.982057],[-89.845764,16.981335],[-89.845455,16.981209],[-89.846791,16.978435],[-89.847218,16.978768],[-89.848694,16.979406],[-89.847266,16.982057]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P5","name":"Lote B","area":"133,050 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.850701,16.983708],[-89.847283,16.982014],[-89.848691,16.9794],[-89.851953,16.980787],[-89.850701,16.983708]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P4","name":"Lote C","area":"216,025 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.851905,16.9848],[-89.85054,16.984084],[-89.851953,16.980787],[-89.854578,16.974272],[-89.857588,16.966491],[-89.859221,16.968092],[-89.857292,16.969497],[-89.856614,16.970114],[-89.854971,16.975249],[-89.851905,16.9848]]]}},{"type":"Feature","properties":{"kind":"vecino","id":"V"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-89.863457,16.972419],[-89.860845,16.975689],[-89.859965,16.977132],[-89.858018,16.980472],[-89.857578,16.981736],[-89.857705,16.983267],[-89.858191,16.986109],[-89.858029,16.987242],[-89.851992,16.984534],[-89.854973,16.97525],[-89.856615,16.970115],[-89.857293,16.969498],[-89.859222,16.968094],[-89.863457,16.972419]]],[[[-89.856857,16.968375],[-89.854576,16.974272],[-89.853911,16.975923],[-89.854479,16.968393],[-89.856857,16.968375]]]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8558185,16.9514056],[-89.8544742,16.9683342]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8435015,16.9519944],[-89.8558239,16.9513666],[-89.8565063,16.9509139],[-89.8570466,16.9507468],[-89.8575762,16.9505043],[-89.8581074,16.9502379],[-89.8585036,16.9499521],[-89.8589789,16.9495545],[-89.859416,16.9491943],[-89.8596419,16.9490039]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8519301,16.9807854],[-89.848705,16.9793734],[-89.8472189,16.9787499],[-89.8467821,16.9784093],[-89.8449007,16.9767746],[-89.8446981,16.9766199],[-89.8438576,16.9763348],[-89.8429587,16.9759474],[-89.8419486,16.9755949],[-89.8410519,16.9752773],[-89.8399542,16.9747818],[-89.8403318,16.9729132],[-89.8406847,16.9712325],[-89.8410369,16.9690063],[-89.8414093,16.9667281],[-89.841478,16.9664579],[-89.841513,16.9663799],[-89.8416684,16.9663697],[-89.8417193,16.9662236],[-89.8423621,16.961687],[-89.8428301,16.9578464],[-89.8431096,16.9558135],[-89.8432537,16.9547189],[-89.8435553,16.9525143],[-89.843602,16.9519605]]}}]};
+const SITE = [-89.8548, 16.9768];
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+const LOSS_YEARS = Array.from({length:24},(_,i)=>2001+i); // 2001–2024
+const lossURL = y => `https://tiles.globalforestwatch.org/umd_tree_cover_loss/latest/dynamic/{z}/{x}/{y}.png?start_year=2001&end_year=${y}&tree_cover_density_threshold=30&render_type=true_color`;
+const GE_TL = 'https://earthengine.google.com/iframes/timelapse_player_embed.html#v=16.975,-89.83,10.6,latLng&t=0&ps=50&bt=19840101&et=20221231&startDwell=0&endDwell=1';
+const GE_LINK = 'https://earthengine.google.com/timelapse/#v=16.975,-89.83,10.6,latLng&t=0';
 
-  // --- gráfica de población (SVG a escala) ---
-  (function chart(){
-    const data=[[2002,366735],[2008,563832],[2018,595548],[2023,640151]];
-    const W=560,H=250,L=56,R=24,T=22,B=34, x0=2000,x1=2025, y1=700000;
-    const sx=v=>L+(v-x0)/(x1-x0)*(W-L-R), sy=v=>T+(1-v/y1)*(H-T-B);
-    const g=document.getElementById('chartG'); let s='';
-    [0,200000,400000,600000].forEach(v=>{s+=`<line x1="${L}" x2="${W-R}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)"/><text x="${L-8}" y="${sy(v)+4}" text-anchor="end">${v/1000}k</text>`});
-    [2000,2005,2010,2015,2020,2025].forEach(v=>{s+=`<text x="${sx(v)}" y="${H-12}" text-anchor="middle">${v}</text>`});
-    const pts=data.map(d=>`${sx(d[0])},${sy(d[1])}`).join(' ');
-    s+=`<polygon points="${sx(2002)},${sy(0)} ${pts} ${sx(2023)},${sy(0)}" fill="var(--lake)" fill-opacity=".12"/>`;
-    s+=`<polyline points="${pts}" fill="none" stroke="var(--lake)" stroke-width="2.5"/>`;
-    data.forEach((d,i)=>{const last=i===data.length-1;
-      s+=`<circle cx="${sx(d[0])}" cy="${sy(d[1])}" r="${last?5:3.5}" fill="${last?'var(--lake)':'var(--surface)'}" stroke="var(--lake)" stroke-width="2"/>`;
-      s+=`<text class="val" x="${sx(d[0])}" y="${sy(d[1])-11}" text-anchor="${i===0?'start':(last?'end':'middle')}">${d[1].toLocaleString('es-GT')}</text>`});
-    g.innerHTML=s;
-  })();
+/* ---------- geometry helpers ---------- */
+const polys = GEO.features.filter(f=>f.geometry.type!=='LineString');
+const roads = GEO.features.filter(f=>f.geometry.type==='LineString');
+const ringsOf = g => g.type==='Polygon' ? [g.coordinates[0]] : g.coordinates.map(p=>p[0]);
+const outlines = {type:'FeatureCollection',features:polys.flatMap(f=>ringsOf(f.geometry).map(r=>({type:'Feature',properties:f.properties,geometry:{type:'LineString',coordinates:r}})))};
+const centroid = ring => { let x=0,y=0; ring.slice(0,-1).forEach(c=>{x+=c[0];y+=c[1]}); const n=ring.length-1; return [x/n,y/n]; };
+// corridor path along Lote C (P4): mid of south end → mid of north end
+const p4 = polys.find(f=>f.properties.id==='P4').geometry.coordinates[0].slice(0,-1).slice().sort((a,b)=>a[1]-b[1]);
+const mid = (a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+const corrPath = [mid(p4[0],p4[1]), mid(p4[p4.length-2],p4[p4.length-1])];
+corrPath[1] = [corrPath[1][0]+0.0004, corrPath[1][1]+0.0012]; // reach the water line
+const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
 
-  if(!window.L){ statusEl.hidden=false; statusEl.textContent="No se pudo cargar la librería del mapa. Revisa la conexión."; return; }
-
-  const map=L.map('map',{zoomControl:true,attributionControl:true,minZoom:8,maxZoom:15}).setView([16.985,-89.83],11);
-  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Imagen: Esri World Imagery',maxZoom:17});
-  const dark=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap, © CARTO',subdomains:'abcd',maxZoom:17});
-
-  let errors=0;
-  function watch(layer){ layer.on('tileerror',()=>{ if(++errors===4) showFallback();}); return layer; }
-  let fb=false;
-  function showFallback(){ if(fb) return; fb=true;
-    document.getElementById('mapmsg').hidden=false;
-    document.getElementById('map').style.background='#dfe6e0';
-    const lake=[[16.995,-89.935],[17.005,-89.90],[17.02,-89.86],[17.03,-89.80],[17.025,-89.74],[17.01,-89.70],[16.995,-89.675],[16.98,-89.69],[16.975,-89.73],[16.965,-89.78],[16.955,-89.83],[16.94,-89.86],[16.92,-89.87],[16.912,-89.885],[16.92,-89.90],[16.94,-89.905],[16.965,-89.915],[16.975,-89.93]];
-    L.polygon(lake,{color:'#1f6f78',weight:1.5,fillColor:'#1f6f78',fillOpacity:.35,dashArray:'4 3'}).bindTooltip('Lago Petén Itzá (contorno esquemático)').addTo(map);
+/* ---------- map ---------- */
+const map = new maplibregl.Map({
+  container:'map', center:[-60,12], zoom:1.25, pitch:0, bearing:0, attributionControl:{compact:true},
+  interactive:false, fadeDuration:300, maxPitch:75,
+  style:{
+    version:8, projection:{type:'globe'},
+    sky:{'sky-color':'#071012','horizon-color':'#1d3b3f','fog-color':'#071012','atmosphere-blend':['interpolate',['linear'],['zoom'],0,1,5,.8,8,0]},
+    sources:{
+      sat:{type:'raster',tiles:[ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19,attribution:'Esri, Maxar, Earthstar Geographics'},
+      ref:{type:'raster',tiles:[ESRI+'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:13},
+      dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14,attribution:'Mapzen/AWS Terrain Tiles'},
+      lots:{type:'geojson',data:{type:'FeatureCollection',features:polys}},
+      outl:{type:'geojson',data:outlines,lineMetrics:true},
+      roads:{type:'geojson',data:{type:'FeatureCollection',features:roads}},
+      flow:{type:'geojson',data:{type:'FeatureCollection',features:[]}},
+      corr:{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:corrPath}},lineMetrics:true}
+    },
+    layers:[
+      {id:'bg',type:'background',paint:{'background-color':'#071012'}},
+      {id:'sat',type:'raster',source:'sat',paint:{'raster-saturation':-.15,'raster-contrast':.08,'raster-brightness-max':.92}},
+      {id:'ref',type:'raster',source:'ref',paint:{'raster-opacity':0,'raster-opacity-transition':{duration:800}}},
+      {id:'lot-fill-v',type:'fill',source:'lots',filter:['==',['get','kind'],'vecino'],paint:{'fill-color':'#ece6d8','fill-opacity':0,'fill-opacity-transition':{duration:900}}},
+      {id:'lot-fill-p',type:'fill',source:'lots',filter:['==',['get','kind'],'pablo'],paint:{'fill-color':'#8fd3b6','fill-opacity':0,'fill-opacity-transition':{duration:900}}},
+      {id:'roads',type:'line',source:'roads',paint:{'line-color':'#ece6d8','line-width':1.6,'line-dasharray':[2,2],'line-opacity':0,'line-opacity-transition':{duration:800}}},
+      {id:'outl-v',type:'line',source:'outl',filter:['==',['get','kind'],'vecino'],layout:{'line-join':'round'},paint:{'line-width':2,'line-dasharray':[3,2],'line-color':'#ece6d8','line-opacity':0,'line-opacity-transition':{duration:900}}},
+      {id:'outl-p-glow',type:'line',source:'outl',filter:['==',['get','kind'],'pablo'],layout:{'line-join':'round'},paint:{'line-width':10,'line-blur':8,'line-color':'#8fd3b6','line-opacity':0,'line-opacity-transition':{duration:900}}},
+      {id:'outl-p',type:'line',source:'outl',filter:['==',['get','kind'],'pablo'],layout:{'line-join':'round','line-cap':'round'},paint:{'line-width':2.6,'line-gradient':['step',['line-progress'],'#8fd3b6',0,'rgba(0,0,0,0)']}},
+      {id:'corr-line',type:'line',source:'corr',layout:{'line-cap':'round'},paint:{'line-width':['interpolate',['linear'],['zoom'],13,6,17,26],'line-blur':6,'line-opacity':0,'line-opacity-transition':{duration:900},
+        'line-gradient':['interpolate',['linear'],['line-progress'],0,'rgba(143,211,182,0.05)',1,'rgba(143,211,182,0.75)']}},
+      {id:'flow',type:'circle',source:'flow',paint:{'circle-radius':['interpolate',['linear'],['zoom'],13,3,17,7],'circle-color':'#d9fff0','circle-blur':.4,'circle-opacity':['get','o']}}
+    ]
   }
-  watch(sat); watch(dark);
+});
+window.__map = map;
 
-  const wms=(layers,time,opacity)=>watch(L.tileLayer.wms(GIBS,Object.assign({layers,format:'image/png',transparent:true,version:'1.1.1',opacity:opacity||.85,attribution:'NASA GIBS'},time?{TIME:time}:{})));
+/* HTML markers */
+const mk = (lnglat, html, cls='') => { const w=document.createElement('div'); const el=document.createElement('div'); el.className='mk '+cls; el.innerHTML=html; w.appendChild(el); new maplibregl.Marker({element:w,anchor:'center'}).setLngLat(lnglat).addTo(map); return el; };
+const M = {
+  flores: mk([-89.8833,16.9297],'Flores'),
+  tikal:  mk([-89.6237,17.2220],'Tikal'),
+  site:   mk([SITE[0],SITE[1]+0.0005],'Reserva Nimá','big'),
+  haP:    mk([-89.8489,16.9812],'42.2 ha','ha'),
+  haV:    mk([-89.8604,16.9735],'≈123.6 ha','ha v'),
+  corr:   mk([corrPath[0][0]+0.0035,corrPath[0][1]+0.004],'Corredor → lago','ha')
+};
+const showMk = on => Object.entries(M).forEach(([k,el])=>el.classList.toggle('on',on.includes(k)));
 
-  // Estado
-  const state={layer:'pop',pop:'2020',night:'2016-01-01',fire:'2024-05-12',loss:2024};
-  let base=null, over=null;
+let ready=false, lossAdded=false;
+map.on('load',()=>{ ready=true; go(cur,true); });
+map.on('error',e=>{ /* tile failures are non-fatal */ });
 
-  const LEG={
-    pop:{ramp:'linear-gradient(90deg,#fff7bc,#fec44f,#ec7014,#993404,#3b0f06)',lo:'baja',hi:'alta (hab/km²)',
-      note:'<strong>Densidad de población</strong> por celda de ~1 km. Compara 2000 con 2020 y observa cómo se consolida el núcleo Flores–San Benito–Santa Elena y se extiende por la orilla sur y oeste.'},
-    night:{ramp:'linear-gradient(90deg,#000,#3a3320,#a8863a,#f2d27a,#fff6d8)',lo:'oscuro',hi:'brillante',
-      note:'<strong>Luces nocturnas</strong> compuesto anual. La mancha de luz marca asentamientos y su avance. Píxel de ~500 m: muestra la región, no predios individuales.'},
-    fire:{dots:true,note:'<strong>Focos de calor</strong> detectados por satélite en el día elegido. La temporada seca va de marzo a mayo; prueba fechas de abril y mayo de distintos años.'},
-    loss:{ramp:'linear-gradient(90deg,#f7c3d7,#c2306f)',lo:'2001',hi:'año elegido',
-      note:'<strong>Pérdida de cobertura arbórea</strong> a 30 m, acumulada desde 2001. Incluye tala, conversión a potrero e incendios que eliminan el dosel.'}
-  };
+function addLossLayers(){
+  if(lossAdded) return; lossAdded=true;
+  LOSS_YEARS.forEach(y=>{
+    map.addSource('loss'+y,{type:'raster',tiles:[lossURL(y)],tileSize:256,maxzoom:12,attribution:'Hansen/UMD/Google/USGS/NASA · GFW'});
+    map.addLayer({id:'loss'+y,type:'raster',source:'loss'+y,paint:{'raster-opacity':0,'raster-opacity-transition':{duration:250},'raster-fade-duration':0}},'lot-fill-v');
+  });
+}
+function lossShow(y){ if(!lossAdded) return; LOSS_YEARS.forEach(v=>map.setPaintProperty('loss'+v,'raster-opacity', v===y?0.95:0)); }
 
-  function render(){
-    if(over){ map.removeLayer(over); over=null; }
-    const wantDark = state.layer==='night';
-    const nb = wantDark?dark:sat;
-    if(base!==nb){ if(base) map.removeLayer(base); base=nb; base.addTo(map); }
-    if(state.layer==='pop') over=wms('GPW_Population_Density_'+state.pop,null,.7);
-    if(state.layer==='night') over=wms('VIIRS_Black_Marble',state.night,1);
-    if(state.layer==='fire') over=wms('VIIRS_SNPP_Thermal_Anomalies_375m_All',state.fire,1);
-    if(state.layer==='loss'){
-      over=watch(L.tileLayer('https://tiles.globalforestwatch.org/umd_tree_cover_loss/latest/dynamic/{z}/{x}/{y}.png?start_year=2001&end_year='+state.loss+'&tree_cover_density_threshold=30',{attribution:'Hansen/UMD/Google/USGS/NASA · GFW',opacity:.95,maxNativeZoom:12}));
-    }
-    if(over) over.addTo(map);
-    const lg=LEG[state.layer];
-    legendEl.innerHTML = lg.dots
-      ? '<div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:50%;background:var(--ember)"></span>foco de calor detectado (375 m)</div>'
-      : `<div class="ramp" style="background:${lg.ramp}"></div><div class="ramp-row"><span>${lg.lo}</span><span>${lg.hi}</span></div>`;
-    noteEl.innerHTML=lg.note;
-    ['pop','night','fire','loss'].forEach(k=>document.getElementById('ctrl-'+k).hidden = k!==state.layer);
+/* outline trace animation */
+let traceRAF=0;
+function trace(on){
+  cancelAnimationFrame(traceRAF);
+  if(!on){ map.setPaintProperty('outl-p','line-gradient',['step',['line-progress'],'#8fd3b6',0,'rgba(0,0,0,0)']); return; }
+  const t0=performance.now(), D=RM?1:2200;
+  const tick=now=>{ const p=Math.min(1,(now-t0)/D); const e=1-Math.pow(1-p,3);
+    map.setPaintProperty('outl-p','line-gradient',['step',['line-progress'],'#8fd3b6',Math.max(.0001,e),'rgba(0,0,0,0)']);
+    if(p<1) traceRAF=requestAnimationFrame(tick); };
+  traceRAF=requestAnimationFrame(tick);
+}
+function layers({lots=false,vec=false,roadsOn=false,glow=false,corr=false,ref=false}){
+  map.setPaintProperty('lot-fill-p','fill-opacity',lots?0.22:0);
+  map.setPaintProperty('lot-fill-v','fill-opacity',vec?0.08:0);
+  map.setPaintProperty('outl-v','line-opacity',vec?0.85:0);
+  map.setPaintProperty('outl-p-glow','line-opacity',glow?0.7:0);
+  map.setPaintProperty('roads','line-opacity',roadsOn?0.7:0);
+  map.setPaintProperty('corr-line','line-opacity',corr?1:0);
+  map.setPaintProperty('ref','raster-opacity',ref?0.75:0);
+  flowRun(corr);
+}
+let traced=false;
+function lotsIn(vec=true){ layers({lots:true,vec,glow:true}); if(!traced){trace(true);traced=true;} }
+
+/* corridor flow particles */
+let flowRAF=0;
+function flowRun(on){
+  cancelAnimationFrame(flowRAF);
+  if(!on){ map.getSource('flow')?.setData({type:'FeatureCollection',features:[]}); return; }
+  const N=9;
+  const tick=now=>{ const feats=[]; for(let i=0;i<N;i++){ const t=((now/5200)+i/N)%1; feats.push({type:'Feature',properties:{o:Math.sin(Math.PI*t)},geometry:{type:'Point',coordinates:lerp(corrPath[0],corrPath[1],t)}}); }
+    map.getSource('flow').setData({type:'FeatureCollection',features:feats}); if(!RM) flowRAF=requestAnimationFrame(tick); };
+  flowRAF=requestAnimationFrame(tick);
+}
+
+/* cover globe spin */
+let spinOn=false;
+function spin(){ if(!spinOn||RM) return; const c=map.getCenter(); map.easeTo({center:[c.lng-12,c.lat],duration:4000,easing:t=>t}); }
+map.on('moveend',()=>{ if(spinOn) spin(); });
+
+/* HUD */
+const hud=document.getElementById('hud');
+map.on('move',()=>{ if(!hud.classList.contains('on')) return; const c=map.getCenter();
+  document.getElementById('hlat').textContent=Math.abs(c.lat).toFixed(4)+'° '+(c.lat>=0?'N':'S');
+  document.getElementById('hlng').textContent=Math.abs(c.lng).toFixed(4)+'° '+(c.lng<0?'O':'E');
+  const alt=40075016*Math.cos(c.lat*Math.PI/180)/Math.pow(2,map.getZoom()+1)*1.2; // rough eye altitude
+  document.getElementById('halt').textContent=alt>10000?Math.round(alt/1000).toLocaleString('es-GT')+' km':Math.round(alt).toLocaleString('es-GT')+' m'; });
+
+/* fly-in sequence */
+const WAY=[
+  {t:'Centroamérica', e:'Aproximación', c:[-87.5,14.8], z:4.4, p:0, b:0, d:5200},
+  {t:'Guatemala', e:'108,889 km²', c:[-90.25,15.7], z:6.6, p:20, b:0, d:5200},
+  {t:'Petén — Selva Maya', e:'Un tercio del territorio nacional', c:[-89.85,16.95], z:8.6, p:35, b:-8, d:5200},
+  {t:'Lago Petén Itzá', e:'99 km² · 160 m de profundidad', c:[-89.835,16.975], z:11.6, p:45, b:-15, d:5600},
+  {t:'Reserva Nimá', e:'Orilla sur del lago', c:SITE, z:14.9, p:58, b:-22, d:6000}
+];
+let flyToken=0;
+async function flySeq(){
+  const tok=++flyToken; traced=false; layers({ref:true}); showMk([]);
+  hud.classList.add('on');
+  const ticks=[...document.querySelectorAll('#ticks i')];
+  map.jumpTo({center:[-60,12],zoom:1.4,pitch:0,bearing:0}); map.setTerrain(null);
+  for(let i=0;i<WAY.length;i++){
+    if(tok!==flyToken) return;
+    const w=WAY[i]; setCap(w.e,w.t); ticks.forEach((el,j)=>el.classList.toggle('on',j<=i));
+    if(i===3){ layers({ref:false}); showMk(['flores']); }
+    if(i===4){ try{map.setTerrain({source:'dem',exaggeration:1.3});}catch(e){} showMk([]); }
+    await new Promise(res=>{ map.once('moveend',res); map.flyTo({center:w.c,zoom:w.z,pitch:w.p,bearing:w.b,duration:RM?0:w.d,curve:1.5,essential:true}); });
+    if(tok!==flyToken) return;
+    await new Promise(r=>setTimeout(r,RM?0:500));
   }
+  if(tok!==flyToken) return;
+  lotsIn(true); showMk(['site']);
+}
+function setCap(e,t){ const T=document.getElementById('flyT'), E=document.getElementById('flyEy'); T.style.opacity=0; setTimeout(()=>{T.textContent=t;E.textContent=e;T.style.opacity=1;},250); }
+document.getElementById('replay').addEventListener('click',flySeq);
 
-  // lago y orilla de referencia
-  L.circleMarker([16.929,-89.892],{radius:5,color:'#fff',weight:2,fillColor:'#1f6f78',fillOpacity:1}).bindTooltip('Isla de Flores',{direction:'top'}).addTo(map);
-  L.circleMarker([16.967,-89.913],{radius:4,color:'#fff',weight:2,fillColor:'#1f6f78',fillOpacity:1}).bindTooltip('San Andrés',{direction:'top'}).addTo(map);
-  L.circleMarker([16.982,-89.902],{radius:4,color:'#fff',weight:2,fillColor:'#1f6f78',fillOpacity:1}).bindTooltip('San José',{direction:'top'}).addTo(map);
-  L.circleMarker([16.988,-89.692],{radius:4,color:'#fff',weight:2,fillColor:'#1f6f78',fillOpacity:1}).bindTooltip('El Remate',{direction:'top'}).addTo(map);
+/* loss animation */
+let lossTimer=0, lossI=0;
+function lossPlay(){ clearInterval(lossTimer); addLossLayers(); lossI=0; const yr=document.getElementById('yr');
+  const step=()=>{ const y=LOSS_YEARS[lossI]; yr.textContent=y; lossShow(y); lossI++; if(lossI>=LOSS_YEARS.length) clearInterval(lossTimer); };
+  step(); lossTimer=setInterval(step,RM?60:650); }
+function lossStop(){ clearInterval(lossTimer); if(lossAdded) LOSS_YEARS.forEach(v=>map.setPaintProperty('loss'+v,'raster-opacity',0)); }
+document.getElementById('lossPlay').addEventListener('click',lossPlay);
+const lbox=document.getElementById('lbox'), lframe=document.getElementById('lframe');
+document.getElementById('geLink').href=GE_LINK;
+document.getElementById('landsat').addEventListener('click',()=>{ lframe.src=GE_TL; lbox.hidden=false; });
+document.getElementById('lclose').addEventListener('click',()=>{ lbox.hidden=true; lframe.src='about:blank'; });
 
-  document.getElementById('tabs').addEventListener('click',e=>{
-    const b=e.target.closest('.tab'); if(!b) return;
-    document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-pressed',t===b));
-    state.layer=b.dataset.layer; render();
-  });
-  document.querySelectorAll('.seg').forEach(seg=>seg.addEventListener('click',e=>{
-    const b=e.target.closest('button'); if(!b) return;
-    seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));
-    const grp=seg.dataset.group; state[grp]=b.dataset.v;
-    if(grp==='fire') document.getElementById('fireDate').value=b.dataset.v;
-    render();
-  }));
-  document.getElementById('fireDate').addEventListener('change',e=>{
-    state.fire=e.target.value;
-    document.querySelectorAll('[data-group="fire"] button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===state.fire));
-    render();
-  });
-  const ly=document.getElementById('lossYear'), lyo=document.getElementById('lossYearOut');
-  ly.addEventListener('input',()=>{lyo.textContent=ly.value});
-  ly.addEventListener('change',()=>{state.loss=+ly.value; render();});
+/* camera presets per slide */
+const CAM={
+  site:{center:[-89.8492,16.9762],zoom:14.7,pitch:50,bearing:-20,terrain:true},
+  region:{center:[-89.85,16.95],zoom:9,pitch:30,bearing:0},
+  loss:{center:[-89.80,16.975],zoom:10.6,pitch:0,bearing:0},
+  tikal:{center:[-89.7,17.1],zoom:10.2,pitch:55,bearing:20},
+  corridor:{center:[-89.8538,16.9758],zoom:15.6,pitch:62,bearing:-28,terrain:true}
+};
+function cam(name,dur=3200){ const c=CAM[name]; spinOn=false;
+  try{ map.setTerrain(c.terrain?{source:'dem',exaggeration:1.3}:null);}catch(e){}
+  map.flyTo({center:c.center,zoom:c.zoom,pitch:c.pitch,bearing:c.bearing,duration:RM?0:dur,curve:1.3,essential:true}); }
 
-  render();
+function mapFor(kind,first){
+  flyToken++; hud.classList.remove('on'); lossStop(); clearInterval(lossTimer);
+  switch(kind){
+    case 'globe': layers({}); showMk([]); trace(false); traced=false;
+      try{map.setTerrain(null);}catch(e){}
+      map.flyTo({center:[-75,13],zoom:1.35,pitch:0,bearing:0,duration:first||RM?0:2500});
+      spinOn=true; if(first) setTimeout(spin,300); break;
+    case 'fly': spinOn=false; flySeq(); break;
+    case 'site': cam('site'); lotsIn(true); showMk(['site','haP','haV']); break;
+    case 'site-glow': cam('site'); lotsIn(true); showMk(['site']); break;
+    case 'region': cam('region'); layers({ref:true}); showMk(['flores','tikal']); break;
+    case 'loss': cam('loss',2600); layers({}); showMk(['flores']); addLossLayers(); setTimeout(lossPlay,RM?0:1800); break;
+    case 'tikal': cam('tikal'); layers({}); showMk(['tikal']); break;
+    case 'corridor': cam('corridor'); layers({lots:true,vec:true,roadsOn:true,corr:true}); showMk(['corr']); break;
+  }
+}
+
+/* ---------- slides ---------- */
+const slides=[...document.querySelectorAll('.slide')];
+const scrim=document.getElementById('scrim'), bar=document.getElementById('bar'), ctr=document.getElementById('ctr');
+let cur=0;
+function parseHash(){ const m=location.hash.match(/^#s(\d+)$/); return m?Math.min(slides.length-1,Math.max(0,+m[1]-1)):0; }
+cur=parseHash();
+function countUp(root){ root.querySelectorAll('.cu').forEach(el=>{ const to=+el.dataset.to, dec=+(el.dataset.dec||0), t0=performance.now(), D=RM?1:1600;
+  const tick=now=>{ const p=Math.min(1,(now-t0)/D), e=1-Math.pow(1-p,4); el.textContent=(to*e).toLocaleString('es-GT',{minimumFractionDigits:dec,maximumFractionDigits:dec}); if(p<1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick); }); }
+function go(i,first=false){
+  i=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,j)=>s.classList.toggle('on',j===i));
+  const s=slides[i]; cur=i;
+  scrim.className=s.dataset.scrim||'s-none';
+  bar.style.width=((i+1)/slides.length*100)+'%';
+  ctr.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+  if(location.hash!=='#s'+(i+1)) history.replaceState(null,'','#s'+(i+1));
+  countUp(s); if(s.id==='s-pop') drawPop();
+  if(ready) mapFor(s.dataset.map,first);
+}
+document.getElementById('next').addEventListener('click',()=>go(cur+1));
+document.getElementById('prev').addEventListener('click',()=>go(cur-1));
+addEventListener('keydown',e=>{
+  if(!lbox.hidden){ if(e.key==='Escape') document.getElementById('lclose').click(); return; }
+  if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){ e.preventDefault(); go(cur+1); }
+  else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){ e.preventDefault(); go(cur-1); }
+  else if(e.key==='Home') go(0); else if(e.key==='End') go(slides.length-1);
+  else if(e.key==='f'||e.key==='F'){ (document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.())?.catch?.(()=>{}); }
+});
+addEventListener('hashchange',()=>{ const i=parseHash(); if(i!==cur) go(i); });
+let tx=null; addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+addEventListener('touchend',e=>{ if(tx===null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>60) go(cur+(dx<0?1:-1)); tx=null; },{passive:true});
+
+/* population chart */
+const POP=[[1960,21000,'≈21 mil'],[1973,64000,'≈64 mil'],[2002,366735,'366,735'],[2018,595548,'595,548']];
+function drawPop(){
+  const g=document.getElementById('popg'), W=640,H=380,L=20,R=600,T=30,B=330;
+  const x=y=>L+(y-1960)/(2018-1960)*(R-L), y=v=>B-v/600000*(B-T);
+  const pts=POP.map(p=>[x(p[0]),y(p[1])]);
+  const d='M'+pts.map(p=>p.join(',')).join(' L');
+  let s=`<line class="ax" x1="${L}" y1="${B}" x2="${R}" y2="${B}"/>`;
+  [200000,400000,600000].forEach(v=>{ s+=`<line class="ax" x1="${L}" x2="${R}" y1="${y(v)}" y2="${y(v)}" stroke-dasharray="2 6"/><text class="lbl" x="${R+8}" y="${y(v)+4}">${v/1000}k</text>`; });
+  s+=`<path class="area" d="${d} L${pts[pts.length-1][0]},${B} L${pts[0][0]},${B} Z"/>`;
+  s+=`<path class="ln" id="popln" d="${d}"/>`;
+  POP.forEach((p,i)=>{ const [px,py]=pts[i]; const anchor=i===0?'start':(i===POP.length-1?'end':'middle');
+    s+=`<g class="pt" style="opacity:0;transition:opacity .5s ${0.6+i*0.35}s"><circle class="dot" cx="${px}" cy="${py}" r="5"/>
+      <text class="val" x="${px+(i===0?-4:0)}" y="${py-14}" text-anchor="${anchor}">${p[2]}</text>
+      <text class="lbl" x="${px}" y="${B+22}" text-anchor="${anchor}">${p[0]}</text></g>`; });
+  g.innerHTML=s;
+  const ln=document.getElementById('popln'), len=ln.getTotalLength();
+  ln.style.strokeDasharray=len; ln.style.strokeDashoffset=RM?0:len;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ ln.style.transition='stroke-dashoffset 1.8s cubic-bezier(.2,.7,.1,1) .3s'; ln.style.strokeDashoffset=0; g.querySelectorAll('.pt').forEach(e=>e.style.opacity=1); }));
+}
+
+/* photos (Wikimedia Commons) */
+const credits=[];
+document.querySelectorAll('img[data-file]').forEach(img=>{
+  const f=img.dataset.file;
+  img.src='https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(f)+'?width=1100';
+  img.loading='eager'; img.decoding='async';
+  img.onload=()=>img.classList.add('ok');
+  img.onerror=()=>{ const a=document.createElement('div'); a.className='alt'; a.textContent=img.alt; img.replaceWith(a); };
+  credits.push(`<a href="https://commons.wikimedia.org/wiki/File:${encodeURIComponent(f)}" target="_blank" rel="noopener">${img.alt}</a>`);
+});
+document.getElementById('credits').innerHTML=credits.join(' · ');
+
+go(cur,true);
 })();
 </script>
+</body>
+</html>
