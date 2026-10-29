@@ -299,9 +299,9 @@ em{font-style:italic;color:var(--jade)}
     <div class="rows a d2">
       <div class="row"><div class="v"><span class="sw p"></span>42.2 ha</div><div class="k">Lotes A · B · C<span>Propiedad de Pablo Arenales</span></div></div>
       <div class="row"><div class="v"><span class="sw v"></span>≈ 123.6 ha</div><div class="k">Reserva complementaria<span>Adquisición propuesta vía ONG ambiental</span></div></div>
-      <div class="row"><div class="v">791 m</div><div class="k">Frente al lago<span>Lotes A–C, lineales</span></div></div>
+      <div class="row"><div class="v">≈ 1,500 m</div><div class="k">Frente total al lago<span>791 m lotes A–C · ≈710 m reserva complementaria</span></div></div>
     </div>
-    <p class="note a d3">Lotes A–C según plano A001 (72,660 · 133,050 · 216,025 m²). Reserva complementaria calculada del levantamiento georreferenciado; sujeta a verificación registral.</p>
+    <p class="note a d3">Lotes A–C según plano A001 (72,660 · 133,050 · 216,025 m²). Reserva complementaria (área y frente) calculada del levantamiento georreferenciado sobre el lindero norte; el mismo método reproduce los frentes de A–C (215 · 410 · 166 m). Sujeto a verificación registral.</p>
   </div>
 </section>
 
@@ -530,6 +530,12 @@ em{font-style:italic;color:var(--jade)}
 (() => {
 const GEO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"kind":"pablo","id":"P3","name":"Lote A","area":"72,660 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.847266,16.982057],[-89.845764,16.981335],[-89.845455,16.981209],[-89.846791,16.978435],[-89.847218,16.978768],[-89.848694,16.979406],[-89.847266,16.982057]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P5","name":"Lote B","area":"133,050 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.850701,16.983708],[-89.847283,16.982014],[-89.848691,16.9794],[-89.851953,16.980787],[-89.850701,16.983708]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P4","name":"Lote C","area":"216,025 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.851905,16.9848],[-89.85054,16.984084],[-89.851953,16.980787],[-89.854578,16.974272],[-89.857588,16.966491],[-89.859221,16.968092],[-89.857292,16.969497],[-89.856614,16.970114],[-89.854971,16.975249],[-89.851905,16.9848]]]}},{"type":"Feature","properties":{"kind":"vecino","id":"V"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-89.863457,16.972419],[-89.860845,16.975689],[-89.859965,16.977132],[-89.858018,16.980472],[-89.857578,16.981736],[-89.857705,16.983267],[-89.858191,16.986109],[-89.858029,16.987242],[-89.851992,16.984534],[-89.854973,16.97525],[-89.856615,16.970115],[-89.857293,16.969498],[-89.859222,16.968094],[-89.863457,16.972419]]],[[[-89.856857,16.968375],[-89.854576,16.974272],[-89.853911,16.975923],[-89.854479,16.968393],[-89.856857,16.968375]]]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8558185,16.9514056],[-89.8544742,16.9683342]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8435015,16.9519944],[-89.8558239,16.9513666],[-89.8565063,16.9509139],[-89.8570466,16.9507468],[-89.8575762,16.9505043],[-89.8581074,16.9502379],[-89.8585036,16.9499521],[-89.8589789,16.9495545],[-89.859416,16.9491943],[-89.8596419,16.9490039]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8519301,16.9807854],[-89.848705,16.9793734],[-89.8472189,16.9787499],[-89.8467821,16.9784093],[-89.8449007,16.9767746],[-89.8446981,16.9766199],[-89.8438576,16.9763348],[-89.8429587,16.9759474],[-89.8419486,16.9755949],[-89.8410519,16.9752773],[-89.8399542,16.9747818],[-89.8403318,16.9729132],[-89.8406847,16.9712325],[-89.8410369,16.9690063],[-89.8414093,16.9667281],[-89.841478,16.9664579],[-89.841513,16.9663799],[-89.8416684,16.9663697],[-89.8417193,16.9662236],[-89.8423621,16.961687],[-89.8428301,16.9578464],[-89.8431096,16.9558135],[-89.8432537,16.9547189],[-89.8435553,16.9525143],[-89.843602,16.9519605]]}}]};
 const SITE = [-89.8548, 16.9768];
+const FRONT={type:'FeatureCollection',features:[
+  {type:'Feature',properties:{kind:'pablo'},geometry:{type:'LineString',coordinates:[[-89.847266,16.982057],[-89.845764,16.981335],[-89.845455,16.981209]]}},
+  {type:'Feature',properties:{kind:'pablo'},geometry:{type:'LineString',coordinates:[[-89.850701,16.983708],[-89.847283,16.982014]]}},
+  {type:'Feature',properties:{kind:'pablo'},geometry:{type:'LineString',coordinates:[[-89.851905,16.984800],[-89.850540,16.984084]]}},
+  {type:'Feature',properties:{kind:'vecino'},geometry:{type:'LineString',coordinates:[[-89.858029,16.987242],[-89.851991,16.984533]]}}]};
+
 const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const LOSS_YEARS = Array.from({length:24},(_,i)=>2001+i); // 2001–2024
@@ -562,6 +568,7 @@ const map = new maplibregl.Map({
       ref:{type:'raster',tiles:[ESRI+'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:13},
       dem:{type:'raster-dem',tiles:['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],encoding:'terrarium',tileSize:256,maxzoom:14,attribution:'Mapzen/AWS Terrain Tiles'},
       lots:{type:'geojson',data:{type:'FeatureCollection',features:polys}},
+      front:{type:'geojson',data:FRONT},
       outl:{type:'geojson',data:outlines,lineMetrics:true},
       roads:{type:'geojson',data:{type:'FeatureCollection',features:roads}},
       flow:{type:'geojson',data:{type:'FeatureCollection',features:[]}},
@@ -578,6 +585,8 @@ const map = new maplibregl.Map({
       {id:'outl-p',type:'line',source:'outl',filter:['==',['get','kind'],'pablo'],layout:{'line-join':'round','line-cap':'round'},paint:{'line-width':2.6,'line-gradient':['step',['line-progress'],'#8fd3b6',0,'rgba(0,0,0,0)']}},
       {id:'corr-line',type:'line',source:'corr',layout:{'line-cap':'round'},paint:{'line-width':['interpolate',['linear'],['zoom'],13,6,17,26],'line-blur':6,'line-opacity':0,'line-opacity-transition':{duration:900},
         'line-gradient':['interpolate',['linear'],['line-progress'],0,'rgba(143,211,182,0.05)',1,'rgba(143,211,182,0.75)']}},
+      {id:'front-glow',type:'line',source:'front',layout:{'line-cap':'round'},paint:{'line-width':14,'line-blur':10,'line-color':['match',['get','kind'],'vecino','#ece6d8','#8fd3b6'],'line-opacity':0,'line-opacity-transition':{duration:900}}},
+      {id:'front',type:'line',source:'front',layout:{'line-cap':'round'},paint:{'line-width':4,'line-color':['match',['get','kind'],'vecino','#ece6d8','#8fd3b6'],'line-opacity':0,'line-opacity-transition':{duration:900}}},
       {id:'flow',type:'circle',source:'flow',paint:{'circle-radius':['interpolate',['linear'],['zoom'],13,3,17,7],'circle-color':'#d9fff0','circle-blur':.4,'circle-opacity':['get','o']}}
     ]
   }
@@ -592,6 +601,8 @@ const M = {
   site:   mk([SITE[0],SITE[1]+0.0005],'Reserva Nimá','big'),
   haP:    mk([-89.8489,16.9812],'42.2 ha','ha'),
   haV:    mk([-89.8604,16.9735],'≈123.6 ha','ha v'),
+  frV:    mk([-89.8560,16.9884],'≈710 m frente al lago','ha v'),
+  frP:    mk([-89.8512,16.9862],'791 m frente al lago','ha'),
   corr:   mk([corrPath[0][0]+0.0035,corrPath[0][1]+0.004],'Corredor → lago','ha')
 };
 const showMk = on => Object.entries(M).forEach(([k,el])=>el.classList.toggle('on',on.includes(k)));
@@ -651,7 +662,8 @@ function trace(on){
     if(p<1) traceRAF=requestAnimationFrame(tick); };
   traceRAF=requestAnimationFrame(tick);
 }
-function layers({lots=false,vec=false,roadsOn=false,glow=false,corr=false,ref=false}){
+function layers({lots=false,vec=false,roadsOn=false,glow=false,corr=false,ref=false,front=false}){
+  map.setPaintProperty('front','line-opacity',front?1:0); map.setPaintProperty('front-glow','line-opacity',front?.55:0);
   map.setPaintProperty('lot-fill-p','fill-opacity',lots?0.22:0);
   map.setPaintProperty('lot-fill-v','fill-opacity',vec?0.08:0);
   map.setPaintProperty('outl-v','line-opacity',vec?0.85:0);
@@ -735,7 +747,7 @@ document.getElementById('lclose').addEventListener('click',()=>{ lbox.hidden=tru
 
 /* camera presets per slide */
 const CAM={
-  site:{center:[-89.8492,16.9762],zoom:14.7,pitch:50,bearing:-20,terrain:true},
+  site:{center:[-89.8462,16.9775],zoom:14.45,pitch:50,bearing:-20,terrain:true},
   region:{center:[-89.85,16.95],zoom:9,pitch:30,bearing:0},
   loss:{center:[-89.80,16.975],zoom:10.6,pitch:0,bearing:0},
   lossNima:{center:[-89.838,16.972],zoom:12.6,pitch:0,bearing:0},
@@ -746,6 +758,7 @@ function cam(name,dur=3200){ const c=CAM[name]; spinOn=false;
   try{ map.setTerrain(c.terrain?{source:'dem',exaggeration:1.3}:null);}catch(e){}
   map.flyTo({center:c.center,zoom:c.zoom,pitch:c.pitch,bearing:c.bearing,duration:RM?0:dur,curve:1.3,essential:true}); }
 
+const s0=()=>slides[cur];
 function mapFor(kind,first){
   flyToken++; hud.classList.remove('on'); lossStop(); clearInterval(lossTimer);
   switch(kind){
@@ -754,7 +767,7 @@ function mapFor(kind,first){
       map.flyTo({center:[-75,13],zoom:1.35,pitch:0,bearing:0,duration:first||RM?0:2500});
       spinOn=true; if(first) setTimeout(spin,300); break;
     case 'fly': spinOn=false; flySeq(); break;
-    case 'site': cam('site'); lotsIn(true); showMk(['site','haP','haV']); break;
+    case 'site': cam('site'); layers({lots:true,vec:true,glow:true,front:s0().id==='s-scale'}); if(!traced){trace(true);traced=true;} showMk(s0().id==='s-scale'?['haP','haV','frV','frP']:['site','haP','haV']); break;
     case 'site-glow': cam('site'); lotsIn(true); showMk(['site']); break;
     case 'region': cam('region'); layers({ref:true}); showMk(['flores','tikal']); break;
     case 'loss': cam('loss',2600); layers({}); showMk(['flores']); map.once('moveend',()=>{ if(slides[cur].dataset.map==='loss'){ addLossLayers(); lossPlay(); } }); break;
