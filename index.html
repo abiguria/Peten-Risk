@@ -32,14 +32,14 @@
 [hidden]{display:none!important}
 html,body{height:100%;margin:0;background:var(--ink);color:var(--bone);overflow:hidden}
 body{font-family:var(--f-body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
-#map{position:fixed;inset:0;background:var(--ink)}
+#stars{position:fixed;inset:0;width:100%;height:100%;background:var(--ink);z-index:0}
+#map{position:fixed;inset:0;background:transparent;z-index:0}
 .maplibregl-ctrl-attrib{background:rgba(7,16,18,.55)!important;color:var(--bone-dim)!important;font:10px var(--f-mono)}
 .maplibregl-ctrl-attrib a{color:var(--bone-dim)!important}
 .maplibregl-ctrl-attrib-button{filter:invert(1)}
 .maplibregl-ctrl-bottom-right{bottom:calc(64px + env(safe-area-inset-bottom,0px))!important;z-index:3}
 
 /* scrims */
-#clouds{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;transition:opacity .6s}
 #scrim{position:fixed;z-index:1;inset:0;pointer-events:none;transition:background .9s var(--ease),opacity .9s var(--ease)}
 #scrim.s-none{background:radial-gradient(120% 80% at 50% 50%,transparent 55%,rgba(7,16,18,.55) 100%)}
 #scrim.s-left{background:linear-gradient(90deg,rgba(7,16,18,.88) 0%,rgba(7,16,18,.55) 38%,transparent 70%)}
@@ -260,9 +260,9 @@ em{font-style:italic;color:var(--jade)}
 </style>
 </head>
 <body>
+<canvas id="stars" aria-hidden="true"></canvas>
 <div id="map" aria-label="Mapa satelital"></div>
 <div id="lossov" aria-hidden="true"></div>
-<canvas id="clouds" aria-hidden="true"></canvas>
 <div id="scrim" class="s-none"></div>
 <div class="bar" id="bar"></div>
 
@@ -556,7 +556,7 @@ const map = new maplibregl.Map({
   interactive:false, fadeDuration:300, maxPitch:75,
   style:{
     version:8, projection:{type:'globe'},
-    sky:{'sky-color':'#071012','horizon-color':'#1d3b3f','fog-color':'#071012','atmosphere-blend':['interpolate',['linear'],['zoom'],0,1,5,.8,8,0]},
+    sky:{'sky-color':'rgba(7,16,18,0)','horizon-color':'#1d3b3f','fog-color':'#071012','atmosphere-blend':['interpolate',['linear'],['zoom'],0,1,5,.8,8,0]},
     sources:{
       sat:{type:'raster',tiles:[ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:19,attribution:'Esri, Maxar, Earthstar Geographics'},
       ref:{type:'raster',tiles:[ESRI+'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],tileSize:256,maxzoom:13},
@@ -568,7 +568,6 @@ const map = new maplibregl.Map({
       corr:{type:'geojson',data:{type:'Feature',geometry:{type:'LineString',coordinates:corrPath}},lineMetrics:true}
     },
     layers:[
-      {id:'bg',type:'background',paint:{'background-color':'#071012'}},
       {id:'sat',type:'raster',source:'sat',paint:{'raster-saturation':-.15,'raster-contrast':.08,'raster-brightness-max':.92}},
       {id:'ref',type:'raster',source:'ref',paint:{'raster-opacity':0,'raster-opacity-transition':{duration:800}}},
       {id:'lot-fill-v',type:'fill',source:'lots',filter:['==',['get','kind'],'vecino'],paint:{'fill-color':'#ece6d8','fill-opacity':0,'fill-opacity-transition':{duration:900}}},
@@ -767,73 +766,35 @@ function mapFor(kind,first){
 }
 
 
-/* ---------- peripheral clouds (drone / bird's-eye feel) ----------
-   WebGL fractal-noise clouds: domain-warped fBm, two parallax layers, self-shadowing,
-   tied to the camera (pan + zoom) and masked so the centre of the frame stays clear. */
-const Clouds=(()=>{
-  const cv=document.getElementById('clouds');
-  const gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false});
-  if(!gl||RM){ cv.remove(); return {set(){}}; }
-  const VS='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
-  const FS=`precision mediump float;
-uniform vec2 uRes;uniform float uT,uZ,uL,uIn;uniform vec2 uOff;
-float h(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
-float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
- return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
-const mat2 R=mat2(1.6,1.2,-1.2,1.6);
-float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*n(p);p=R*p;a*=.5;}return s;}
-float cl(vec2 p){vec2 q=vec2(fbm(p+vec2(0.,uT*.015)),fbm(p+vec2(5.2,1.3)-uT*.01));
- return fbm(p+1.7*q+vec2(uT*.025,0.));}
-float lay(vec2 p,float k,float sc){float z=uZ*k,f=fract(z);
- float a=cl(p*sc*exp2(-f)), b=cl(p*sc*exp2(1.-f));return mix(a,b,f);}
-vec4 shade(vec2 p,float k,float sc,float cov,float op){
- float d0=lay(p,k,sc), d1=lay(p+vec2(.035,.05)/sc,k,sc);
- float d=smoothstep(cov,cov+.28,d0);
- float lit=clamp(.62+(d0-d1)*5.,0.,1.);
- vec3 col=mix(vec3(.50,.56,.62),vec3(1.,.99,.97),lit);
- col=mix(col,vec3(.80,.86,.92),.25*(1.-d));
- float a=d*op;return vec4(col*a,a);}
-void main(){
- vec2 c=(gl_FragCoord.xy-.5*uRes)/uRes.y;
- float r=length(c*vec2(1.,1.18));
- float m=smoothstep(uIn,uIn+.42,r);
- vec4 far=shade(c+uOff*.55/uRes.y+vec2(3.1,7.7),.6,2.4,.50,.65);
- vec4 near=shade(c+uOff/uRes.y,1.,1.3,.47,.95);
- vec4 o=near+far*(1.-near.a);
- // soft atmospheric haze toward the frame edge
- float hz=smoothstep(.45,1.05,r)*.22;vec4 haze=vec4(vec3(.78,.84,.9)*hz,hz);
- o=o+haze*(1.-o.a);
- gl_FragColor=o*m*uL;}`;
-  const sh=(t,src)=>{const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){console.warn(gl.getShaderInfoLog(s));return null;}return s;};
-  const pr=gl.createProgram(), v=sh(gl.VERTEX_SHADER,VS), f=sh(gl.FRAGMENT_SHADER,FS);
-  if(!v||!f){ cv.remove(); return {set(){}}; }
-  gl.attachShader(pr,v);gl.attachShader(pr,f);gl.linkProgram(pr);gl.useProgram(pr);
-  const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
-  const loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
-  const U={};['uRes','uT','uZ','uL','uIn','uOff'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
-  const SCALE=0.5; // render at half resolution: clouds are soft, keeps iPads cool
-  function size(){ cv.width=Math.round(innerWidth*SCALE); cv.height=Math.round(innerHeight*SCALE); gl.viewport(0,0,cv.width,cv.height); }
-  size(); addEventListener('resize',size);
-  let level=0,target=0,inner=.3,innerT=.3,zAcc=0,ox=0,oy=0,last=null,lastZ=null,t0=performance.now(),T=Math.random()*100;
-  function frame(now){
-    const dt=Math.min(.05,(now-t0)/1000); t0=now; T+=dt;
-    level+=(target-level)*Math.min(1,dt*1.4); inner+=(innerT-inner)*Math.min(1,dt*1.4);
-    if(window.__map&&__map.loaded()){ const c=__map.getCenter(), z=__map.getZoom();
-      if(last){ const pt=__map.project(last); const dx=pt.x-innerWidth/2, dy=pt.y-innerHeight/2;
-        if(Math.abs(dx)<innerWidth&&Math.abs(dy)<innerHeight){ ox-=dx*SCALE*1.6; oy+=dy*SCALE*1.6; } }
-      if(lastZ!==null) zAcc+=(z-lastZ)*0.55; last=c; lastZ=z; }
-    if(level>0.004){
-      gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.uniform2f(U.uRes,cv.width,cv.height);gl.uniform1f(U.uT,T);gl.uniform1f(U.uZ,zAcc);
-      gl.uniform1f(U.uL,level);gl.uniform1f(U.uIn,inner);gl.uniform2f(U.uOff,ox,oy);
-      gl.drawArrays(gl.TRIANGLES,0,3); cv.style.opacity=1;
-    } else cv.style.opacity=0;
+
+
+/* ---------- star field behind the globe ---------- */
+(()=>{
+  const cv=document.getElementById('stars'), g=cv.getContext('2d');
+  let W,H,D, S=[];
+  function seed(){ D=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; cv.width=W*D; cv.height=H*D; g.setTransform(D,0,0,D,0,0);
+    const n=Math.round(W*H/2600); S=[];
+    for(let i=0;i<n;i++){ const m=Math.pow(Math.random(),3);
+      S.push({x:Math.random(),y:Math.random(),r:.35+m*1.5,a:.25+m*.75,tw:Math.random()*6.28,sp:.4+Math.random()*1.6,
+        c:Math.random()<.12?'255,214,170':(Math.random()<.18?'190,214,255':'255,255,255')}); }
+    for(let i=0;i<n*.8;i++){ const t=Math.random(), off=(Math.random()+Math.random()+Math.random()-1.5)*.12;
+      S.push({x:t,y:.15+t*.7+off,r:.3+Math.random()*.5,a:.12+Math.random()*.3,tw:Math.random()*6.28,sp:.5+Math.random(),c:'225,235,255'}); } }
+  seed(); addEventListener('resize',seed);
+  let lastLng=null, shift=0;
+  function frame(t){
+    const m=window.__map; let vis=1;
+    if(m){ const z=m.getZoom(); vis=Math.max(0,Math.min(1,(5-z)/2.5)); const lng=m.getCenter().lng;
+      if(lastLng!==null){ let d=lng-lastLng; if(d>180)d-=360; if(d<-180)d+=360; shift+=d/360*0.35; } lastLng=lng; }
+    g.clearRect(0,0,W,H);
+    if(vis>0.01){
+      for(const s of S){ const tw=RM?1:.7+.3*Math.sin(t/1000*s.sp+s.tw);
+        const x=((s.x-shift)%1+1)%1*W, y=s.y*H;
+        g.globalAlpha=s.a*tw*vis; g.fillStyle=`rgb(${s.c})`; g.beginPath(); g.arc(x,y,s.r,0,6.283); g.fill(); }
+      g.globalAlpha=1; }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  return { set(v,inn){ target=v; innerT=inn??.3; } };
 })();
-const CLOUD={globe:[0],fly:[1,.2],site:[.55,.34],'site-glow':[.65,.32],region:[.7,.28],loss:[0],lossNima:[0],tikal:[.6,.3],corridor:[.7,.3]};
 
 /* ---------- slides ---------- */
 const slides=[...document.querySelectorAll('.slide')];
@@ -855,7 +816,6 @@ function go(i,first=false){
   countUp(s); if(s.id==='s-pop') drawPop();
   document.querySelectorAll('#bars i').forEach(b=>b.style.height=(s.id==='s-loss'?b.dataset.h*0.7:0)+'px');
   if(ready) mapFor(s.dataset.map,first);
-  { const c=s.dataset.scrim==='s-solid'?[0]:(CLOUD[s.dataset.map]||[0]); Clouds.set(c[0],c[1]); }
 }
 document.getElementById('next').addEventListener('click',()=>go(cur+1));
 document.getElementById('prev').addEventListener('click',()=>go(cur-1));
