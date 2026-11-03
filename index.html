@@ -2,8 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>Reserva Nimá</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#071012">
 <meta name="description" content="Reserva Nimá — Lago Petén Itzá, Petén, Guatemala. Presentación para inversionistas.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -252,6 +256,87 @@ em{font-style:italic;color:var(--jade)}
 .mk.ha{font:500 13px var(--f-mono);letter-spacing:.04em;text-transform:none;background:rgba(7,16,18,.7);padding:5px 8px;border-left:2px solid var(--jade)}
 .mk.ha.v{border-left-color:var(--bone)}
 
+.fr-mob{display:none}
+.tapnote{display:none}
+@media (max-width:760px), (max-width:1024px) and (orientation:portrait) and (pointer:coarse){
+
+/* ===== VERSIÓN MÓVIL (vertical): mapa arriba, contenido abajo ===== */
+html,body{overscroll-behavior:none;touch-action:pan-y}
+.slide{flex-direction:column;align-items:stretch!important;justify-content:flex-start!important;
+  padding:calc(env(safe-area-inset-top,0px) + 18px) max(18px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 78px) max(18px,env(safe-area-inset-left,0px));
+  overflow-y:auto;-webkit-overflow-scrolling:touch;gap:14px}
+.slide > .i:first-child,.slide > .wrap:first-child,.slide > .panel:first-child,.slide > .stack:first-child{margin-top:auto}
+#s-thesis > .i,#s-close > .wrap{margin-bottom:auto}
+#scrim.s-left,#scrim.s-right,#scrim.s-bottom{background:linear-gradient(0deg,rgba(7,16,18,.95) 0%,rgba(7,16,18,.82) 38%,rgba(7,16,18,.2) 62%,transparent 75%)}
+.hud{display:none!important}
+.display{font-size:clamp(44px,13vw,64px)}
+.h2{font-size:clamp(26px,7.4vw,34px)}
+.h3{font-size:clamp(18px,5.2vw,22px)}
+.lede{font-size:14px}
+.note{font-size:10px}
+.eyebrow{font-size:10.5px}
+.coords{gap:6px 14px;font-size:10.5px}
+#s-cover .tag{font-size:19px}
+/* escala */
+.panel{width:100%;gap:12px!important}
+.big{font-size:52px!important}
+.row{padding:10px 0;gap:2px 14px}
+.row .v{font-size:19px}
+.row .k{font-size:13px}.row .k span{font-size:11.5px}
+/* población */
+#s-pop .grid{grid-template-columns:1fr;gap:10px}
+.x28{font-size:72px}
+/* pérdida */
+.yr{font-size:48px}
+.loss-stat{font-size:44px}
+.bars{height:108px;margin-top:8px}.bars div{height:108px}
+#s-loss > .stack{max-width:none!important}
+#s-loss > .stack{gap:10px}
+#s-loss > .stack + .stack{flex-direction:row!important;flex-wrap:wrap;align-items:flex-end!important;gap:6px 14px}
+#s-loss > .stack + .stack .bars,#s-loss > .stack + .stack .note{flex-basis:100%}
+#s-loss > .stack + .stack .lede{margin:0;max-width:20ch!important;font-size:13px}
+#s-loss .bars b{font-size:10px}
+.btn{padding:12px 14px;font-size:11px}
+.quote{font-size:15px}
+#s-nloss .row{padding:8px 0}
+/* bio */
+.bio{grid-template-columns:1fr;gap:18px}
+.count .n{font-size:38px}
+/* fauna y flora */
+.sp-head{gap:6px}
+.sp-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;height:calc(100dvh - 230px)!important;gap:8px}
+.flora-grid{grid-template-columns:1fr!important;grid-template-rows:repeat(2,minmax(0,1fr));height:calc(100dvh - 210px)!important}
+.sp .cn{font-size:17px}.sp .sn{font-size:10.5px}.sp figcaption{padding:20px 10px 8px}
+.sp .st{font-size:9px;top:6px;right:6px;padding:3px 5px}
+/* fronteras */
+.fr-desk{display:none}
+.fr-mob{display:block;width:100%;height:auto;max-height:calc(100dvh - 230px)}
+.fr-wrap{justify-content:center}
+/* retornos */
+.ret{grid-template-columns:1fr}
+.ret > div + div{border-left:0;border-top:1px solid var(--line);padding-left:0;margin-top:18px}
+.ret ul{font-size:15px}
+.sig{gap:22px}
+.src{columns:1}
+/* navegación */
+.nav{padding:10px max(14px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 10px) max(14px,env(safe-area-inset-left,0px));background:linear-gradient(0deg,rgba(7,16,18,.9),transparent)}
+.nav button{width:46px;height:46px;font-size:18px}
+.brand{font-size:10px;white-space:nowrap}
+.brand span.c{display:none}
+.ctr{white-space:nowrap;gap:10px}
+#s-nloss .note{display:none}
+#s-scale .note{display:none}
+.glass{padding:14px 16px}
+.mk{font-size:10px}.mk.big{font-size:17px}.mk.ha{font-size:11px;padding:4px 6px}
+.maplibregl-ctrl-bottom-right{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
+.tapnote{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 88px);transform:translateX(-50%);z-index:60;
+  font:400 11px var(--f-mono);letter-spacing:.08em;color:var(--bone);background:rgba(7,16,18,.85);border:1px solid var(--line);padding:9px 12px;white-space:nowrap;transition:opacity .6s;pointer-events:none}
+@media (orientation:landscape) and (max-height:520px){
+  .rotate{display:grid!important}
+}
+.rotate{display:none;position:fixed;inset:0;z-index:90;background:var(--ink);place-items:center;text-align:center;padding:24px;font:400 13px var(--f-mono);color:var(--bone);letter-spacing:.06em}
+
+}
 @media (max-width:800px){
   #s-pop .grid,.bio,.ret{grid-template-columns:1fr}
   .ret > div + div{border-left:0;border-top:1px solid var(--line);padding-left:0;margin-top:24px}
@@ -457,7 +542,7 @@ em{font-style:italic;color:var(--jade)}
     <div class="note a d1">Esquema conceptual · programa por definir</div>
   </div>
   <div class="fr-wrap i">
-    <svg viewBox="0 0 1000 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Esquema de fronteras de desarrollo">
+    <svg class="fr-desk" viewBox="0 0 1000 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Esquema de fronteras de desarrollo">
       <defs>
         <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#8fd3b6" stroke-opacity=".35" stroke-width="2"/></pattern>
         <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f3b44"/><stop offset="1" stop-color="#16525a"/></linearGradient>
@@ -483,6 +568,33 @@ em{font-style:italic;color:var(--jade)}
         <g class="press" style="animation-delay:.6s"><line x1="320" y1="430" x2="320" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
         <g class="press" style="animation-delay:1.2s"><line x1="560" y1="430" x2="560" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
         <g class="press" style="animation-delay:.3s"><line x1="880" y1="430" x2="880" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
+      </g>
+    </svg>
+    <svg class="fr-mob" viewBox="0 0 400 610" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Esquema de fronteras de desarrollo">
+      <defs>
+        <pattern id="hatchM" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#8fd3b6" stroke-opacity=".35" stroke-width="2"/></pattern>
+        <linearGradient id="waterM" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f3b44"/><stop offset="1" stop-color="#16525a"/></linearGradient>
+        <marker id="ahM" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff6a3d"/></marker>
+        <marker id="ajM" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8fd3b6"/></marker>
+      </defs>
+      <g class="fr-band b1"><rect x="0" y="0" width="400" height="60" fill="url(#waterM)"/><text x="16" y="37" class="ttl" style="font-size:20px">Lago Petén Itzá</text><text x="384" y="37" text-anchor="end" class="dim" style="font-size:11px">N ↑</text></g>
+      <g class="fr-band b2"><rect x="0" y="60" width="290" height="230" fill="#11231f"/><rect x="0" y="60" width="290" height="230" fill="url(#hatchM)"/>
+        <text x="16" y="96" class="ttl" style="font-size:20px">Reserva núcleo</text><text x="16" y="118" class="dim" style="font-size:11px">Bosque protegido</text><text x="16" y="134" class="dim" style="font-size:11px">desarrollo de baja densidad</text></g>
+      <g class="fr-band b2"><rect x="0" y="290" width="290" height="90" fill="#11231f"/><rect x="0" y="290" width="290" height="90" fill="url(#hatchM)"/>
+        <text x="16" y="326" class="ttl" style="font-size:18px">Reserva complementaria</text><text x="16" y="348" class="dim" style="font-size:11px">Adquisición vía ONG</text></g>
+      <g class="fr-band b3"><rect x="290" y="60" width="110" height="410" fill="#173a30"/>
+        <text x="345" y="96" text-anchor="middle" class="ttl" style="font-size:17px">Corredor</text><text x="345" y="114" text-anchor="middle" class="dim" style="font-size:10px">biológico</text>
+        <line x1="345" y1="455" x2="345" y2="132" stroke="#8fd3b6" stroke-width="3" class="flowline" marker-end="url(#ajM)" marker-start="url(#ajM)"/>
+        <text x="345" y="490" text-anchor="middle" class="dim" style="font-size:9.5px;opacity:0">.</text></g>
+      <g class="fr-band b4"><rect x="0" y="380" width="290" height="90" fill="#1e2a22" stroke="#8fd3b6" stroke-width="1.5"/>
+        <text x="16" y="414" class="ttl" style="font-size:19px">Frontera sur</text><text x="16" y="436" class="dim" style="font-size:11px">Escuela de ciencias naturales</text><text x="16" y="452" class="dim" style="font-size:11px">turismo ecológico</text></g>
+      <line class="fr-band b4" x1="0" y1="470" x2="400" y2="470" stroke="#8fd3b6" stroke-width="2"/>
+      <g class="fr-band b5">
+        <g class="press"><line x1="60" y1="556" x2="60" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
+        <g class="press" style="animation-delay:.6s"><line x1="160" y1="556" x2="160" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
+        <g class="press" style="animation-delay:1.2s"><line x1="250" y1="556" x2="250" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
+        <g class="press" style="animation-delay:.3s"><line x1="345" y1="556" x2="345" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
+        <text x="200" y="590" text-anchor="middle" class="dim" style="fill:#ff6a3d;font-size:11px">EXPANSIÓN URBANA Y AGRÍCOLA</text>
       </g>
     </svg>
   </div>
@@ -526,8 +638,10 @@ em{font-style:italic;color:var(--jade)}
   </div>
 </section>
 
+<div class="rotate">Gira el teléfono a vertical<br>para ver la presentación.</div>
+<div class="tapnote" id="tapnote">Toca a la derecha para avanzar →</div>
 <nav class="nav" aria-label="Navegación">
-  <div class="brand"><b>Reserva Nimá</b> · Confidencial</div>
+  <div class="brand"><b>Reserva Nimá</b><span class="c"> · Confidencial</span></div>
   <div class="ctr"><button type="button" id="prev" aria-label="Anterior">←</button><span class="mono" id="ctr">01 / 14</span><button type="button" id="next" aria-label="Siguiente">→</button></div>
 </nav>
 
@@ -549,6 +663,11 @@ const FRONT={type:'FeatureCollection',features:[
   {type:'Feature',properties:{kind:'vecino'},geometry:{type:'LineString',coordinates:[[-89.858029,16.987242],[-89.851991,16.984533]]}}]};
 
 const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MQ = window.matchMedia('(max-width:760px), (max-width:1024px) and (orientation:portrait) and (pointer:coarse)');
+let MOB = MQ.matches;
+const ZADJ_ = () => MOB ? Math.max(-1.6, Math.min(0, Math.log2(Math.min(innerWidth, innerHeight) / 900))) : 0;
+let ZADJ = ZADJ_();
+const PAD = () => MOB ? {top: 10, bottom: Math.round(innerHeight * 0.42), left: 0, right: 0} : {top:0,bottom:0,left:0,right:0};
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
 const LOSS_YEARS = Array.from({length:24},(_,i)=>2001+i); // 2001–2024
 const lossURL = y => `https://tiles.globalforestwatch.org/umd_tree_cover_loss/latest/dynamic/{z}/{x}/{y}.png?start_year=${y}&end_year=${y}&tree_cover_density_threshold=30&render_type=true_color`;
@@ -745,7 +864,7 @@ async function flySeq(){
     const w=WAY[i]; setCap(w.e,w.t); ticks.forEach((el,j)=>el.classList.toggle('on',j<=i));
     if(i===3){ layers({ref:false}); showMk(['flores']); }
     if(i===4){ try{map.setTerrain({source:'dem',exaggeration:1.3});}catch(e){} showMk([]); }
-    await new Promise(res=>{ map.once('moveend',res); map.flyTo({center:w.c,zoom:w.z,pitch:w.p,bearing:w.b,duration:RM?0:w.d,curve:1.5,essential:true}); });
+    await new Promise(res=>{ map.once('moveend',res); map.flyTo({center:w.c,zoom:w.z+(i<2?ZADJ*0.6:ZADJ),padding:PAD(),pitch:w.p,bearing:w.b,duration:RM?0:w.d,curve:1.5,essential:true}); });
     if(tok!==flyToken) return;
     await new Promise(r=>setTimeout(r,RM?0:500));
   }
@@ -773,16 +892,16 @@ document.getElementById('lclose').addEventListener('click',()=>{ lbox.hidden=tru
 
 /* camera presets per slide */
 const CAM={
-  site:{center:[-89.8462,16.9775],zoom:14.45,pitch:50,bearing:-20,terrain:true},
+  site:{get center(){return MOB?[-89.8530,16.9790]:[-89.8462,16.9775]},zoom:14.45,pitch:50,bearing:-20,terrain:true},
   region:{center:[-89.85,16.95],zoom:9,pitch:30,bearing:0},
   loss:{center:[-89.80,16.975],zoom:10.6,pitch:0,bearing:0},
-  lossNima:{center:[-89.838,16.972],zoom:12.6,pitch:0,bearing:0},
+  lossNima:{get center(){return MOB?[-89.852,16.976]:[-89.838,16.972]},zoom:12.6,pitch:0,bearing:0},
   tikal:{center:[-89.7,17.1],zoom:10.2,pitch:55,bearing:20},
-  corridor:{center:[-89.8538,16.9758],zoom:15.6,pitch:62,bearing:-28,terrain:true}
+  corridor:{get center(){return MOB?[-89.8540,16.9765]:[-89.8538,16.9758]},zoom:15.6,pitch:62,bearing:-28,terrain:true}
 };
 function cam(name,dur=3200){ const c=CAM[name]; spinOn=false;
   try{ map.setTerrain(c.terrain?{source:'dem',exaggeration:1.3}:null);}catch(e){}
-  map.flyTo({center:c.center,zoom:c.zoom,pitch:c.pitch,bearing:c.bearing,duration:RM?0:dur,curve:1.3,essential:true}); }
+  map.flyTo({center:c.center,zoom:c.zoom+ZADJ,padding:PAD(),pitch:c.pitch,bearing:c.bearing,duration:RM?0:dur,curve:1.3,essential:true}); }
 
 const s0=()=>slides[cur];
 function mapFor(kind,first){
@@ -790,10 +909,10 @@ function mapFor(kind,first){
   switch(kind){
     case 'globe': layers({}); showMk([]); trace(false); traced=false;
       try{map.setTerrain(null);}catch(e){}
-      map.flyTo({center:[-75,13],zoom:1.35,pitch:0,bearing:0,duration:first||RM?0:2500});
+      map.flyTo({center:[-89,14],zoom:1.35+ZADJ*0.5,padding:PAD(),pitch:0,bearing:0,duration:first||RM?0:2500});
       spinOn=true; if(first) setTimeout(spin,300); break;
     case 'fly': spinOn=false; flySeq(); break;
-    case 'site': cam('site'); layers({lots:true,vec:true,glow:true,front:s0().id==='s-scale'}); if(!traced){trace(true);traced=true;} showMk(s0().id==='s-scale'?['haP','haV','frV','frP']:['site','haP','haV']); break;
+    case 'site': cam('site'); layers({lots:true,vec:true,glow:true,front:s0().id==='s-scale'}); if(!traced){trace(true);traced=true;} showMk(s0().id==='s-scale'?(MOB?['haP','haV']:['haP','haV','frV','frP']):['site','haP','haV']); break;
     case 'site-glow': cam('site'); lotsIn(true); showMk(['site']); break;
     case 'region': cam('region'); layers({ref:true}); showMk(['flores','tikal']); break;
     case 'loss': cam('loss',2600); layers({}); showMk(['flores']); map.once('moveend',()=>{ if(slides[cur].dataset.map==='loss'){ addLossLayers(); lossPlay(); } }); break;
@@ -865,6 +984,13 @@ addEventListener('keydown',e=>{
   else if(e.key==='Home') go(0); else if(e.key==='End') go(slides.length-1);
   else if(e.key==='f'||e.key==='F'){ (document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.())?.catch?.(()=>{}); }
 });
+addEventListener('click',e=>{
+  if(!MOB||!lbox.hidden) return;
+  if(e.target.closest('button,a,.btn,.nav,.src,figure,.sp')) return;
+  const x=e.clientX/innerWidth; if(x>0.55) go(cur+1); else if(x<0.3) go(cur-1);
+});
+setTimeout(()=>{ const t=document.getElementById('tapnote'); if(t) t.style.opacity=0; },4500);
+MQ.addEventListener?.('change',e=>{ MOB=e.matches; ZADJ=ZADJ_(); go(cur); });
 addEventListener('hashchange',()=>{ const i=parseHash(); if(i!==cur) go(i); });
 let tx=null; addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
 addEventListener('touchend',e=>{ if(tx===null) return; const dx=e.changedTouches[0].clientX-tx; if(Math.abs(dx)>60) go(cur+(dx<0?1:-1)); tx=null; },{passive:true});
