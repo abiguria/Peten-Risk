@@ -105,7 +105,14 @@ em{font-style:italic;color:var(--jade)}
 .row .k{font-size:15px;color:var(--bone)}
 .row .k span{display:block;color:var(--bone-dim);font-size:13px}
 .sw{display:inline-block;width:10px;height:10px;margin-right:8px;vertical-align:1px}
-.sw.p{background:var(--jade)}.sw.v{background:transparent;border:1px dashed var(--bone)}
+.sw.p{background:var(--jade)}.sw.v{background:rgba(236,230,216,.15);border:1px dashed var(--bone)}.sw.t{background:repeating-linear-gradient(45deg,#e7c46a 0 2px,transparent 2px 4px);border:1px dashed #e7c46a}
+.own-bar{position:relative;height:10px;background:rgba(236,230,216,.12);border:1px solid var(--line);overflow:hidden}
+.own-bar i{position:absolute;inset:0 auto 0 0;width:0;background:var(--jade);transition:width 1.6s var(--ease) .5s}
+.slide.on .own-bar i{width:var(--w)}
+.own-bar.two{background:repeating-linear-gradient(45deg,rgba(236,230,216,.28) 0 3px,rgba(236,230,216,.08) 3px 7px)}
+#s-owned{justify-content:flex-end;align-items:center}
+#s-owned .row{padding:11px 0}
+#s-owned .panel{gap:18px}
 
 /* population */
 #s-pop{align-items:center}
@@ -255,6 +262,7 @@ em{font-style:italic;color:var(--jade)}
 .mk.big{font-family:var(--f-display);font-size:22px;letter-spacing:.02em;text-transform:none;font-style:italic;font-weight:400}
 .mk.ha{font:500 13px var(--f-mono);letter-spacing:.04em;text-transform:none;background:rgba(7,16,18,.7);padding:5px 8px;border-left:2px solid var(--jade)}
 .mk.ha.v{border-left-color:var(--bone)}
+.mk.ha.t{border-left-color:#e7c46a;color:#f3e2b0}
 
 .fr-mob{display:none}
 .tapnote{display:none}
@@ -325,7 +333,9 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 .brand span.c{display:none}
 .ctr{white-space:nowrap;gap:10px}
 #s-nloss .note{display:none}
-#s-scale .note{display:none}
+#s-scale .note{font-size:9.5px}
+#s-owned .note{display:none}
+#s-owned .h3{font-size:20px}
 .glass{padding:14px 16px}
 .mk{font-size:10px}.mk.big{font-size:17px}.mk.ha{font-size:11px;padding:4px 6px}
 .maplibregl-ctrl-bottom-right{bottom:calc(70px + env(safe-area-inset-bottom,0px))!important}
@@ -349,6 +359,11 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
   .a,.sp img,.fr-band{transition:none!important}
   .press,.flowline{animation:none}
 }
+.lang{grid-column:3;justify-self:end;display:flex;gap:0;pointer-events:auto}
+.lang button{width:auto!important;min-width:40px;height:34px!important;padding:0 10px;font:500 11px var(--f-mono)!important;letter-spacing:.1em;color:var(--bone-dim)!important;border:1px solid var(--line)!important;background:rgba(7,16,18,.6)!important;cursor:pointer}
+.lang button + button{border-left:0!important}
+.lang button[aria-pressed="true"]{color:var(--ink)!important;background:var(--jade)!important;border-color:var(--jade)!important}
+@media (max-width:430px){ .brand{display:none} }
 </style>
 </head>
 <body>
@@ -360,43 +375,57 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 
 <div class="hud" id="hud">
   <div class="ticks" id="ticks"><i></i><i></i><i></i><i></i><i></i></div>
-  <div style="margin-top:8px"><b id="hlat">16.9772° N</b> &nbsp; <b id="hlng">89.8557° O</b></div>
+  <div style="margin-top:8px"><b id="hlat">16.9772° N</b> &nbsp; <b id="hlng"><span data-i="0">89.8557° O</span></b></div>
   <div>ALT ≈ <b id="halt">—</b></div>
 </div>
 
 <!-- 0 · Portada -->
 <section class="slide" id="s-cover" data-map="globe" data-scrim="s-bottom">
   <div class="wrap">
-    <div class="coords a"><span>16.9772° N · 89.8557° O</span><span>Lago Petén Itzá</span><span>Petén, Guatemala</span></div>
+    <div class="coords a"><span><span data-i="1">16.9772° N · 89.8557° O</span></span><span><span data-i="2">Lago Petén Itzá</span></span><span>Petén, Guatemala</span></div>
     <h1 class="display a d1">Reserva<br><em>Nimá</em></h1>
     <div class="rule a d2"></div>
-    <div class="tag a d3">Comprar para preservar.</div>
+    <div class="tag a d3"><span data-i="3">Comprar para preservar.</span></div>
   </div>
 </section>
 
 <!-- 1 · Fly-in -->
 <section class="slide" id="s-fly" data-map="fly" data-scrim="s-bottom">
   <div class="fly-cap i">
-    <div class="eyebrow" id="flyEy">Aproximación</div>
-    <h2 class="h2" id="flyT">Centroamérica</h2>
-    <div class="btns" style="margin-top:8px"><button class="btn" id="replay" type="button">Repetir vuelo</button></div>
+    <div class="eyebrow" id="flyEy"><span data-i="4">Aproximación</span></div>
+    <h2 class="h2" id="flyT"><span data-i="5">Centroamérica</span></h2>
+    <div class="btns" style="margin-top:8px"><button class="btn" id="replay" type="button"><span data-i="6">Repetir vuelo</span></button></div>
   </div>
 </section>
 
-<!-- 2 · Escala -->
+<!-- 2 · Lo que ya se tiene -->
+<section class="slide" id="s-owned" data-map="owned" data-scrim="s-right">
+  <div class="panel i">
+    <div class="eyebrow a"><span data-i="7">Lo que ya se tiene · Pablo Arenales</span></div>
+    <div class="big a d1" style="font-size:clamp(64px,8.4vw,124px)"><span class="cu" data-to="61.2" data-dec="1">0</span><small>ha</small></div>
+    <h2 class="h3 a d1"><span data-i="8">La protección ya está</span> <em><span data-i="9">en camino.</span></em></h2>
+    <div class="rows a d2">
+      <div class="row"><div class="v"><span class="sw p"></span>4</div><div class="k"><span data-i="10">Predios</span><span>P3 · P4 · P5 · P8</span></div></div>
+      <div class="row"><div class="v">791 m</div><div class="k"><span data-i="11">Playa y frente al lago</span><span>P3 · P4 · P5</span></div></div>
+      <div class="row"><div class="v"><span class="cu" data-to="11">0</span>%</div><div class="k"><span data-i="12">Del plan maestro de protección</span><span><span data-i="13">61.2 de 567.1 ha</span></span></div></div>
+    </div>
+    <div class="own-bar a d3" aria-hidden="true"><i style="--w:10.8%"></i></div>
+    <p class="note a d3"><span data-i="14">P3, P4 y P5 según plano A001 (42.2 ha); P8 según levantamiento georreferenciado (19.0 ha).</span></p>
+  </div>
+</section>
+
+<!-- 3 · Plan maestro de protección -->
 <section class="slide" id="s-scale" data-map="site" data-scrim="s-right">
   <div class="panel i">
-    <div class="eyebrow a">Reserva Nimá · superficie total</div>
-    <div class="big a d1" style="font-size:clamp(64px,8.4vw,124px)"><span class="cu" data-to="165.8" data-dec="1">0</span><small>ha</small></div>
-    <div class="big a d1" style="font-size:clamp(44px,5.6vw,84px);margin-top:-6px"><span class="cu" data-to="1501">0</span><small>m de frente total al lago</small></div>
-    <div class="mono a d1" style="font-size:12px;color:var(--jade);margin-top:-8px;letter-spacing:.04em">791 m lotes A–C + ≈710 m reserva complementaria</div>
+    <div class="eyebrow a"><span data-i="15">Plan maestro de protección · Reserva Nimá</span></div>
+    <div class="big a d1" style="font-size:clamp(64px,8.4vw,124px)"><span class="cu" data-to="567.1" data-dec="1">0</span><small>ha</small></div>
+    <div class="own-bar two a d1" aria-hidden="true"><i style="--w:10.8%"></i><b></b></div>
     <div class="rows a d2">
-      <div class="row"><div class="v"><span class="sw p"></span>42.2 ha</div><div class="k">Lotes A · B · C<span>Propiedad de Pablo Arenales</span></div></div>
-      <div class="row"><div class="v"><span class="sw v"></span>≈ 123.6 ha</div><div class="k">Reserva complementaria<span>Adquisición propuesta vía ONG ambiental</span></div></div>
-      <div class="row"><div class="v">791 m</div><div class="k">Frente al lago · Lotes A–C<span>Pablo Arenales</span></div></div>
-      <div class="row"><div class="v">≈ 710 m</div><div class="k">Frente al lago · reserva complementaria<span>Propuesta ONG</span></div></div>
+      <div class="row"><div class="v"><span class="sw p"></span>61.2 ha</div><div class="k"><span data-i="16">Ya se tiene</span><span>P3 · P4 · P5 · P8 · Pablo Arenales</span></div></div>
+      <div class="row"><div class="v"><span class="sw v"></span>≈ 505.9 ha</div><div class="k"><span data-i="17">Por adquirir · vía el inversionista</span><span>P1 113.2 · P6 189.9 · P7 202.8 ha</span></div></div>
+      <div class="row"><div class="v">3.34 km</div><div class="k"><span data-i="18">De playa y frente al lago</span><span><span data-i="19">791 m P3–P5 + 2,548 m P1 (702 m norte · 1,846 m oeste)</span></span></div></div>
     </div>
-    <p class="note a d3">Lotes A–C según plano A001 (72,660 · 133,050 · 216,025 m²). Reserva complementaria (área y frente) calculada del levantamiento georreferenciado sobre el lindero norte; el mismo método reproduce los frentes de A–C (215 · 410 · 166 m). Sujeto a verificación registral.</p>
+    <p class="note a d3"><span class="sw t"></span><span data-i="20">Franja de ≈7.7 ha entre P4/P8 y P6 con tenencia por definir; no se incluye en ningún total. P1 sin P4 ni P5. Áreas de P1, P6, P7 y P8 y playa de P1 calculadas del levantamiento georreferenciado; sujetas a verificación registral.</span></p>
   </div>
 </section>
 
@@ -404,17 +433,17 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <section class="slide" id="s-pop" data-map="region" data-scrim="s-heavy">
   <div class="grid i">
     <div class="stack">
-      <div class="eyebrow a">Departamento de Petén · población</div>
+      <div class="eyebrow a"><span data-i="21">Departamento de Petén · población</span></div>
       <div class="x28 a d1">×28</div>
-      <h2 class="h3 a d2">De 21 mil habitantes en 1960 a casi 600 mil en 2018.</h2>
-      <p class="lede a d3">La colonización, la frontera agrícola y la migración convergen sobre la cuenca del lago.</p>
+      <h2 class="h3 a d2"><span data-i="22">De 21 mil habitantes en 1960 a casi 600 mil en 2018.</span></h2>
+      <p class="lede a d3"><span data-i="23">La colonización, la frontera agrícola y la migración convergen sobre la cuenca del lago.</span></p>
     </div>
     <div class="chart a d2">
       <svg viewBox="0 0 640 380" role="img" aria-label="Población de Petén 1960–2018">
         <defs><linearGradient id="popfill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff6a3d" stop-opacity=".35"/><stop offset="1" stop-color="#ff6a3d" stop-opacity="0"/></linearGradient></defs>
         <g id="popg"></g>
       </svg>
-      <p class="note">Fuentes: 1960 PBI Guatemala · 1973 SEGEPLAN · 2002 Censo INE · 2018 estimación oficial INE.</p>
+      <p class="note"><span data-i="24">Fuentes: 1960 PBI Guatemala · 1973 SEGEPLAN · 2002 Censo INE · 2018 estimación oficial INE.</span></p>
     </div>
   </div>
 </section>
@@ -422,42 +451,42 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <!-- 4 · Deforestación Petén -->
 <section class="slide" id="s-loss" data-map="loss" data-scrim="s-left">
   <div class="stack i glass" style="max-width:560px">
-    <div class="eyebrow a">Pérdida de cobertura arbórea · lago y alrededores</div>
+    <div class="eyebrow a"><span data-i="25">Pérdida de cobertura arbórea · lago y alrededores</span></div>
     <div class="yr a d1 yrc">2001</div>
-    <div class="legend a d2"><i></i>Bosque perdido acumulado desde 2001 · UMD / Global Forest Watch</div>
+    <div class="legend a d2"><i></i><span data-i="26">Bosque perdido acumulado desde 2001 · UMD / Global Forest Watch</span></div>
     <div class="lstat"></div>
     <div class="btns a d3">
-      <button class="btn lossPlay" type="button">Reproducir</button>
-      <button class="btn landsat" type="button">Timelapse Landsat 1984–2022</button>
+      <button class="btn lossPlay" type="button"><span data-i="27">Reproducir</span></button>
+      <button class="btn landsat" type="button"><span data-i="28">Timelapse Landsat 1984–2022</span></button>
     </div>
   </div>
   <div class="stack i glass" style="max-width:400px;align-items:flex-start">
     <div class="loss-stat a d3">−33%</div>
-    <p class="lede a d4" style="max-width:28ch">del bosque de Petén perdido entre 2001 y 2023.</p>
+    <p class="lede a d4" style="max-width:28ch"><span data-i="29">del bosque de Petén perdido entre 2001 y 2023.</span></p>
     <div class="bars a d4" id="bars">
       <div><b>265k</b><i data-h="100"></i><span>2001–05</span></div>
       <div><b>257k</b><i data-h="97"></i><span>2006–10</span></div>
       <div><b>150k</b><i data-h="57"></i><span>2011–15</span></div>
       <div><b>244k</b><i data-h="92"></i><span>2016–20</span></div>
     </div>
-    <p class="note a d5">Hectáreas perdidas en Petén por quinquenio: 916,452 ha en 2001–2020, el 30% de su cobertura de 2001 (GFW). Porcentaje 2001–2023: NASA Earth Observatory.</p>
+    <p class="note a d5"><span data-i="30">Hectáreas perdidas en Petén por quinquenio: 916,452 ha en 2001–2020, el 30% de su cobertura de 2001 (GFW). Porcentaje 2001–2023: NASA Earth Observatory.</span></p>
   </div>
 </section>
 
 <!-- 5 · Deforestación en la cuenca / Nimá -->
 <section class="slide" id="s-nloss" data-map="lossNima" data-scrim="s-right">
   <div class="panel i glass" style="gap:14px">
-    <div class="eyebrow a">Cuenca del lago Petén Itzá · 115,513 ha</div>
+    <div class="eyebrow a"><span data-i="31">Cuenca del lago Petén Itzá · 115,513 ha</span></div>
     <div class="big a d1" style="font-size:clamp(52px,6vw,92px)"><span class="cu" data-to="38">0</span><small>%</small></div>
-    <p class="lede a d1" style="margin:-6px 0 0">de la cuenca conservaba bosque en 2001.</p>
+    <p class="lede a d1" style="margin:-6px 0 0"><span data-i="32">de la cuenca conservaba bosque en 2001.</span></p>
     <div class="rows a d2">
-      <div class="row"><div class="v" style="color:var(--ember)">14,941 ha</div><div class="k">Bosque convertido a agricultura y ganadería<span>1986–2001 · 13% de la cuenca · CATIE</span></div></div>
-      <div class="row"><div class="v">43%</div><div class="k">De la cuenca ya en agricultura o pasto<span>2001 · CATIE</span></div></div>
-      <div class="row"><div class="v" style="color:var(--ember)">234,559 ha</div><div class="k">Áreas protegidas de Petén afectadas por incendios<span>Temporada 2023–24 · CONAP</span></div></div>
+      <div class="row"><div class="v" style="color:var(--ember)">14,941 ha</div><div class="k"><span data-i="33">Bosque convertido a agricultura y ganadería</span><span><span data-i="34">1986–2001 · 13% de la cuenca · CATIE</span></span></div></div>
+      <div class="row"><div class="v">43%</div><div class="k"><span data-i="35">De la cuenca ya en agricultura o pasto</span><span>2001 · CATIE</span></div></div>
+      <div class="row"><div class="v" style="color:var(--ember)">234,559 ha</div><div class="k"><span data-i="36">Áreas protegidas de Petén afectadas por incendios</span><span><span data-i="37">Temporada 2023–24 · CONAP</span></span></div></div>
     </div>
-    <p class="quote a d3">“Cobertura forestal muy fragmentada” alrededor del lago; Cerro Cahuí es “el último gran parche de bosque” que une Tikal con el Petén Itzá.</p>
-    <p class="note a d3">Plan maestro Biotopo Cerro Cahuí, CONAP. Mapa: pérdida acumulada 2001–2024 alrededor de Reserva Nimá.</p>
-    <div class="btns a d4" style="align-items:center"><button class="btn lossPlay" type="button">Reproducir</button><span class="legend"><i></i>Pérdida 2001–<span class="yrc mono">2001</span></span></div>
+    <p class="quote a d3"><span data-i="38">“Cobertura forestal muy fragmentada” alrededor del lago; Cerro Cahuí es “el último gran parche de bosque” que une Tikal con el Petén Itzá.</span></p>
+    <p class="note a d3"><span data-i="39">Plan maestro Biotopo Cerro Cahuí, CONAP. Mapa: pérdida acumulada 2001–2024 alrededor de Reserva Nimá.</span></p>
+    <div class="btns a d4" style="align-items:center"><button class="btn lossPlay" type="button"><span data-i="27">Reproducir</span></button><span class="legend"><i></i><span data-i="40">Pérdida 2001–</span><span class="yrc mono">2001</span></span></div>
     <div class="lstat"></div>
   </div>
 </section>
@@ -465,9 +494,9 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <!-- 5 · Tesis -->
 <section class="slide" id="s-thesis" data-map="site-glow" data-scrim="s-heavy">
   <div class="stack i" style="align-items:center">
-    <div class="eyebrow a">La oportunidad</div>
-    <h2 class="h2 a d1">Lo que no se protege, <em>se fragmenta.</em></h2>
-    <p class="lede a d2" style="text-align:center">Comprar hoy es la forma más directa de preservar la orilla del lago.</p>
+    <div class="eyebrow a"><span data-i="41">La oportunidad</span></div>
+    <h2 class="h2 a d1"><span data-i="42">Lo que no se protege,</span> <em><span data-i="43">se fragmenta.</span></em></h2>
+    <p class="lede a d2" style="text-align:center"><span data-i="44">Comprar hoy es la forma más directa de preservar la orilla del lago.</span></p>
   </div>
 </section>
 
@@ -475,20 +504,20 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <section class="slide" id="s-bio" data-map="tikal" data-scrim="s-heavy">
   <div class="bio i">
     <div class="stack">
-      <div class="eyebrow a">Selva Maya</div>
-      <h2 class="h2 a d1">El segundo bosque tropical más grande de <em>América.</em></h2>
+      <div class="eyebrow a"><span data-i="45">Selva Maya</span></div>
+      <h2 class="h2 a d1"><span data-i="46">El segundo bosque tropical más grande de</span> <em><span data-i="47">América.</span></em></h2>
       <div class="counts a d2">
-        <div class="count"><div class="n cu" data-to="513">0</div><div class="t">Aves</div></div>
-        <div class="count"><div class="n cu" data-to="122">0</div><div class="t">Mamíferos</div></div>
+        <div class="count"><div class="n cu" data-to="513">0</div><div class="t"><span data-i="48">Aves</span></div></div>
+        <div class="count"><div class="n cu" data-to="122">0</div><div class="t"><span data-i="49">Mamíferos</span></div></div>
         <div class="count"><div class="n cu" data-to="95">0</div><div class="t">Reptiles</div></div>
       </div>
-      <p class="note a d3">Especies registradas en la Reserva de la Biosfera Maya · TNC · Yale e360 / WCS.</p>
+      <p class="note a d3"><span data-i="50">Especies registradas en la Reserva de la Biosfera Maya · TNC · Yale e360 / WCS.</span></p>
     </div>
     <div class="local a d4">
-      <div class="eyebrow">Mismo lago · Biotopo Cerro Cahuí</div>
-      <p class="h3">Jaguar registrado en la orilla norte del Petén Itzá.</p>
-      <p class="mono" style="color:var(--bone-dim);font-size:13px;margin:0">82 aves · 29 mamíferos · 17 reptiles</p>
-      <p class="note">El registro de jaguar y murciélagos de bosque maduro indica conectividad con el bosque de Tikal. USAC / CECON.</p>
+      <div class="eyebrow"><span data-i="51">Mismo lago · Biotopo Cerro Cahuí</span></div>
+      <p class="h3"><span data-i="52">Jaguar registrado en la orilla norte del Petén Itzá.</span></p>
+      <p class="mono" style="color:var(--bone-dim);font-size:13px;margin:0"><span data-i="53">82 aves · 29 mamíferos · 17 reptiles</span></p>
+      <p class="note"><span data-i="54">El registro de jaguar y murciélagos de bosque maduro indica conectividad con el bosque de Tikal. USAC / CECON.</span></p>
     </div>
   </div>
 </section>
@@ -496,41 +525,41 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <!-- 7 · Fauna -->
 <section class="slide" id="s-fauna" data-map="tikal" data-scrim="s-solid">
   <div class="sp-head i">
-    <div class="stack" style="gap:8px"><div class="eyebrow a">Fauna</div><h2 class="h3 a d1">Especies documentadas en la Selva Maya y la cuenca del lago</h2></div>
-    <div class="note a d1">UICN: <span style="color:#e7c46a">NT</span> casi amenazada · <span style="color:var(--ember)">EN</span> en peligro</div>
+    <div class="stack" style="gap:8px"><div class="eyebrow a">Fauna</div><h2 class="h3 a d1"><span data-i="55">Especies documentadas en la Selva Maya y la cuenca del lago</span></h2></div>
+    <div class="note a d1"><span data-i="56">UICN:</span> <span style="color:#e7c46a">NT</span> <span data-i="57">casi amenazada ·</span> <span style="color:var(--ember)">EN</span> <span data-i="58">en peligro</span></div>
   </div>
   <div class="sp-grid i">
     <figure class="sp a" style="margin:0"><img data-file="Jaguar_(Panthera_onca_palustris)_male_Rio_Negro_2.JPG" alt="Jaguar"><span class="st nt">NT</span><figcaption><span class="cn">Jaguar</span><span class="sn">Panthera onca</span></figcaption></figure>
     <figure class="sp a" style="margin:0"><img data-file="Tapirus_bairdii_-Franklin_Park_Zoo,_Massachusetts,_USA-8a.jpg" alt="Tapir centroamericano"><span class="st en">EN</span><figcaption><span class="cn">Tapir</span><span class="sn">Tapirus bairdii</span></figcaption></figure>
-    <figure class="sp a" style="margin:0"><img data-file="Scarlet_Macaw_(Ara_macao)_in_flight-2.jpg" alt="Guacamaya roja"><span class="st">≈200 · RBM</span><figcaption><span class="cn">Guacamaya roja</span><span class="sn">Ara macao</span></figcaption></figure>
-    <figure class="sp a" style="margin:0"><img data-file="Yucatán_black_howler_(Alouatta_pigra)_Cayo.jpg" alt="Saraguate"><span class="st en">EN</span><figcaption><span class="cn">Saraguate</span><span class="sn">Alouatta pigra</span></figcaption></figure>
-    <figure class="sp a" style="margin:0"><img data-file="Geoffroy's_spider_monkey_(Ateles_geoffroyi_yucatanensis)_Peten_2.jpg" alt="Mono araña"><span class="st en">EN</span><figcaption><span class="cn">Mono araña</span><span class="sn">Ateles geoffroyi</span></figcaption></figure>
-    <figure class="sp a" style="margin:0"><img data-file="Crocodylus_moreletii,_Morelet’s_Crocodile,_Laguna_del_Carppintero.jpg" alt="Cocodrilo de pantano"><span class="st">Cerro Cahuí</span><figcaption><span class="cn">Cocodrilo de pantano</span><span class="sn">Crocodylus moreletii</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Scarlet_Macaw_(Ara_macao)_in_flight-2.jpg" alt="Guacamaya roja"><span class="st"><span data-i="59">≈200 · RBM</span></span><figcaption><span class="cn"><span data-i="60">Guacamaya roja</span></span><span class="sn">Ara macao</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Yucatán_black_howler_(Alouatta_pigra)_Cayo.jpg" alt="Saraguate"><span class="st en">EN</span><figcaption><span class="cn"><span data-i="61">Saraguate</span></span><span class="sn">Alouatta pigra</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Geoffroy's_spider_monkey_(Ateles_geoffroyi_yucatanensis)_Peten_2.jpg" alt="Mono araña"><span class="st en">EN</span><figcaption><span class="cn"><span data-i="62">Mono araña</span></span><span class="sn">Ateles geoffroyi</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Crocodylus_moreletii,_Morelet’s_Crocodile,_Laguna_del_Carppintero.jpg" alt="Cocodrilo de pantano"><span class="st">Cerro Cahuí</span><figcaption><span class="cn"><span data-i="63">Cocodrilo de pantano</span></span><span class="sn">Crocodylus moreletii</span></figcaption></figure>
   </div>
 </section>
 
 <!-- 8 · Flora -->
 <section class="slide" id="s-flora" data-map="tikal" data-scrim="s-solid">
   <div class="sp-head i">
-    <div class="stack" style="gap:8px"><div class="eyebrow a">Flora</div><h2 class="h3 a d1">El dosel que sostiene todo lo demás</h2></div>
+    <div class="stack" style="gap:8px"><div class="eyebrow a">Flora</div><h2 class="h3 a d1"><span data-i="64">El dosel que sostiene todo lo demás</span></h2></div>
   </div>
   <div class="flora-grid i">
-    <figure class="sp a" style="margin:0"><img data-file="Ceiba_pentandra_(2287675871).jpg" alt="Ceiba"><span class="st">Árbol nacional</span><figcaption><span class="cn">Ceiba</span><span class="sn">Ceiba pentandra · árbol sagrado maya</span></figcaption></figure>
-    <figure class="sp a" style="margin:0"><img data-file="Swietenia_macrophylla_(30680883066).jpg" alt="Caoba"><span class="st vu">VU</span><figcaption><span class="cn">Caoba</span><span class="sn">Swietenia macrophylla · recuperada por concesiones comunitarias</span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Ceiba_pentandra_(2287675871).jpg" alt="Ceiba"><span class="st"><span data-i="65">Árbol nacional</span></span><figcaption><span class="cn">Ceiba</span><span class="sn"><span data-i="66">Ceiba pentandra · árbol sagrado maya</span></span></figcaption></figure>
+    <figure class="sp a" style="margin:0"><img data-file="Swietenia_macrophylla_(30680883066).jpg" alt="Caoba"><span class="st vu">VU</span><figcaption><span class="cn"><span data-i="67">Caoba</span></span><span class="sn"><span data-i="68">Swietenia macrophylla · recuperada por concesiones comunitarias</span></span></figcaption></figure>
   </div>
 </section>
 
 <!-- 9 · Corredor -->
 <section class="slide" id="s-corr" data-map="corridor" data-scrim="s-left">
   <div class="corr i">
-    <div class="eyebrow a">Corredor biológico</div>
-    <h2 class="h2 a d1">Del bosque al agua, <em>y de regreso.</em></h2>
-    <p class="lede a d2">Una franja continua donde la fauna baja a beber al lago y vuelve a refugiarse en el bosque, sin cruzar zonas desarrolladas.</p>
+    <div class="eyebrow a"><span data-i="69">Corredor biológico</span></div>
+    <h2 class="h2 a d1"><span data-i="70">Del bosque al agua,</span> <em><span data-i="71">y de regreso.</span></em></h2>
+    <p class="lede a d2"><span data-i="72">Una franja continua donde la fauna baja a beber al lago y vuelve a refugiarse en el bosque, sin cruzar zonas desarrolladas.</span></p>
     <div class="key a d3">
-      <div><i style="background:#d9fff0"></i>Ida al agua</div>
-      <div><i style="background:#7fd4ff"></i>Pausa en la orilla</div>
-      <div><i style="background:#f3d28b"></i>Regreso al bosque</div>
-      <div><i style="background:repeating-linear-gradient(90deg,var(--bone) 0 6px,transparent 6px 10px)"></i>Caminos existentes</div>
+      <div><i style="background:#d9fff0"></i><span data-i="73">Ida al agua</span></div>
+      <div><i style="background:#7fd4ff"></i><span data-i="74">Pausa en la orilla</span></div>
+      <div><i style="background:#f3d28b"></i><span data-i="75">Regreso al bosque</span></div>
+      <div><i style="background:repeating-linear-gradient(90deg,var(--bone) 0 6px,transparent 6px 10px)"></i><span data-i="76">Caminos existentes</span></div>
     </div>
   </div>
 </section>
@@ -538,8 +567,8 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <!-- 10 · Fronteras -->
 <section class="slide" id="s-front" data-map="site" data-scrim="s-solid">
   <div class="sp-head i">
-    <div class="stack" style="gap:8px"><div class="eyebrow a">Fronteras de desarrollo</div><h2 class="h3 a d1">Proyectos que generan valor y, a la vez, protegen el borde</h2></div>
-    <div class="note a d1">Esquema conceptual · programa por definir</div>
+    <div class="stack" style="gap:8px"><div class="eyebrow a"><span data-i="77">Fronteras de desarrollo</span></div><h2 class="h3 a d1"><span data-i="78">Proyectos que generan valor y, a la vez, protegen el borde</span></h2></div>
+    <div class="note a d1"><span data-i="79">Esquema conceptual · programa por definir</span></div>
   </div>
   <div class="fr-wrap i">
     <svg class="fr-desk" viewBox="0 0 1000 470" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Esquema de fronteras de desarrollo">
@@ -549,21 +578,21 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
         <marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff6a3d"/></marker>
         <marker id="aj" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8fd3b6"/></marker>
       </defs>
-      <g class="fr-band b1"><rect x="0" y="0" width="1000" height="70" fill="url(#water)"/><text x="24" y="42" class="ttl">Lago Petén Itzá</text><text x="976" y="42" text-anchor="end" class="dim">NORTE ↑</text></g>
+      <g class="fr-band b1"><rect x="0" y="0" width="1000" height="70" fill="url(#water)"/><text x="24" y="42" class="ttl"><tspan data-i="2">Lago Petén Itzá</tspan></text><text x="976" y="42" text-anchor="end" class="dim"><tspan data-i="80">NORTE ↑</tspan></text></g>
       <g class="fr-band b2"><rect x="0" y="70" width="640" height="190" fill="#11231f"/><rect x="0" y="70" width="640" height="190" fill="url(#hatch)"/>
-        <text x="24" y="112" class="ttl">Reserva núcleo</text><text x="24" y="138" class="dim">Bosque protegido · desarrollo de baja densidad</text></g>
+        <text x="24" y="112" class="ttl"><tspan data-i="81">Reserva núcleo</tspan></text><text x="24" y="138" class="dim"><tspan data-i="82">Bosque protegido · desarrollo de baja densidad</tspan></text></g>
       <g class="fr-band b3"><rect x="640" y="70" width="140" height="300" fill="#173a30"/>
-        <text x="700" y="112" text-anchor="middle" class="ttl" style="font-size:20px">Corredor</text><text x="700" y="134" text-anchor="middle" class="dim">biológico</text>
+        <text x="700" y="112" text-anchor="middle" class="ttl" style="font-size:20px"><tspan data-i="83">Corredor</tspan></text><text x="700" y="134" text-anchor="middle" class="dim"><tspan data-i="84">biológico</tspan></text>
         <line x1="760" y1="360" x2="760" y2="84" stroke="#8fd3b6" stroke-width="3" class="flowline" marker-end="url(#aj)" marker-start="url(#aj)"/>
-        <text x="700" y="300" text-anchor="middle" class="dim" style="font-size:11px">acceso de</text><text x="700" y="316" text-anchor="middle" class="dim" style="font-size:11px">fauna al agua</text></g>
+        <text x="700" y="300" text-anchor="middle" class="dim" style="font-size:11px"><tspan data-i="85">acceso de</tspan></text><text x="700" y="316" text-anchor="middle" class="dim" style="font-size:11px"><tspan data-i="86">fauna al agua</tspan></text></g>
       <g class="fr-band b2"><rect x="780" y="70" width="220" height="190" fill="#11231f"/><rect x="780" y="70" width="220" height="190" fill="url(#hatch)"/>
-        <text x="800" y="112" class="ttl">Reserva</text><text x="800" y="138" class="dim">complementaria · ONG</text></g>
+        <text x="800" y="112" class="ttl"><tspan data-i="87">Por adquirir</tspan></text><text x="800" y="138" class="dim">P1 · P6 · P7</text></g>
       <g class="fr-band b4"><rect x="0" y="260" width="640" height="110" fill="#1e2a22" stroke="#8fd3b6" stroke-width="1.5"/>
-        <text x="24" y="302" class="ttl">Frontera sur</text><text x="24" y="330" class="dim">Escuela de ciencias naturales · turismo ecológico</text>
-        <rect x="780" y="260" width="220" height="110" fill="#1e2a22" stroke="#8fd3b6" stroke-width="1.5"/><text x="800" y="320" class="dim">Borde activo</text></g>
+        <text x="24" y="302" class="ttl"><tspan data-i="88">Frontera sur</tspan></text><text x="24" y="330" class="dim"><tspan data-i="89">Escuela de ciencias naturales · turismo ecológico</tspan></text>
+        <rect x="780" y="260" width="220" height="110" fill="#1e2a22" stroke="#8fd3b6" stroke-width="1.5"/><text x="800" y="320" class="dim"><tspan data-i="90">Borde activo</tspan></text></g>
       <line class="fr-band b4" x1="0" y1="370" x2="1000" y2="370" stroke="#8fd3b6" stroke-width="2"/>
       <g class="fr-band b5">
-        <text x="500" y="455" text-anchor="middle" class="dim" style="fill:#ff6a3d">EXPANSIÓN URBANA Y AGRÍCOLA</text>
+        <text x="500" y="455" text-anchor="middle" class="dim" style="fill:#ff6a3d"><tspan data-i="91">EXPANSIÓN URBANA Y AGRÍCOLA</tspan></text>
         <g class="press"><line x1="120" y1="430" x2="120" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
         <g class="press" style="animation-delay:.6s"><line x1="320" y1="430" x2="320" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
         <g class="press" style="animation-delay:1.2s"><line x1="560" y1="430" x2="560" y2="384" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ah)"/></g>
@@ -577,24 +606,24 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
         <marker id="ahM" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ff6a3d"/></marker>
         <marker id="ajM" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8fd3b6"/></marker>
       </defs>
-      <g class="fr-band b1"><rect x="0" y="0" width="400" height="60" fill="url(#waterM)"/><text x="16" y="37" class="ttl" style="font-size:20px">Lago Petén Itzá</text><text x="384" y="37" text-anchor="end" class="dim" style="font-size:11px">N ↑</text></g>
+      <g class="fr-band b1"><rect x="0" y="0" width="400" height="60" fill="url(#waterM)"/><text x="16" y="37" class="ttl" style="font-size:20px"><tspan data-i="2">Lago Petén Itzá</tspan></text><text x="384" y="37" text-anchor="end" class="dim" style="font-size:11px">N ↑</text></g>
       <g class="fr-band b2"><rect x="0" y="60" width="290" height="230" fill="#11231f"/><rect x="0" y="60" width="290" height="230" fill="url(#hatchM)"/>
-        <text x="16" y="96" class="ttl" style="font-size:20px">Reserva núcleo</text><text x="16" y="118" class="dim" style="font-size:11px">Bosque protegido</text><text x="16" y="134" class="dim" style="font-size:11px">desarrollo de baja densidad</text></g>
+        <text x="16" y="96" class="ttl" style="font-size:20px"><tspan data-i="81">Reserva núcleo</tspan></text><text x="16" y="118" class="dim" style="font-size:11px"><tspan data-i="92">Bosque protegido</tspan></text><text x="16" y="134" class="dim" style="font-size:11px"><tspan data-i="93">desarrollo de baja densidad</tspan></text></g>
       <g class="fr-band b2"><rect x="0" y="290" width="290" height="90" fill="#11231f"/><rect x="0" y="290" width="290" height="90" fill="url(#hatchM)"/>
-        <text x="16" y="326" class="ttl" style="font-size:18px">Reserva complementaria</text><text x="16" y="348" class="dim" style="font-size:11px">Adquisición vía ONG</text></g>
+        <text x="16" y="326" class="ttl" style="font-size:18px"><tspan data-i="87">Por adquirir</tspan></text><text x="16" y="348" class="dim" style="font-size:11px"><tspan data-i="94">P1 · P6 · P7 · inversionista</tspan></text></g>
       <g class="fr-band b3"><rect x="290" y="60" width="110" height="410" fill="#173a30"/>
-        <text x="345" y="96" text-anchor="middle" class="ttl" style="font-size:17px">Corredor</text><text x="345" y="114" text-anchor="middle" class="dim" style="font-size:10px">biológico</text>
+        <text x="345" y="96" text-anchor="middle" class="ttl" style="font-size:17px"><tspan data-i="83">Corredor</tspan></text><text x="345" y="114" text-anchor="middle" class="dim" style="font-size:10px"><tspan data-i="84">biológico</tspan></text>
         <line x1="345" y1="455" x2="345" y2="132" stroke="#8fd3b6" stroke-width="3" class="flowline" marker-end="url(#ajM)" marker-start="url(#ajM)"/>
         <text x="345" y="490" text-anchor="middle" class="dim" style="font-size:9.5px;opacity:0">.</text></g>
       <g class="fr-band b4"><rect x="0" y="380" width="290" height="90" fill="#1e2a22" stroke="#8fd3b6" stroke-width="1.5"/>
-        <text x="16" y="414" class="ttl" style="font-size:19px">Frontera sur</text><text x="16" y="436" class="dim" style="font-size:11px">Escuela de ciencias naturales</text><text x="16" y="452" class="dim" style="font-size:11px">turismo ecológico</text></g>
+        <text x="16" y="414" class="ttl" style="font-size:19px"><tspan data-i="88">Frontera sur</tspan></text><text x="16" y="436" class="dim" style="font-size:11px"><tspan data-i="95">Escuela de ciencias naturales</tspan></text><text x="16" y="452" class="dim" style="font-size:11px"><tspan data-i="96">turismo ecológico</tspan></text></g>
       <line class="fr-band b4" x1="0" y1="470" x2="400" y2="470" stroke="#8fd3b6" stroke-width="2"/>
       <g class="fr-band b5">
         <g class="press"><line x1="60" y1="556" x2="60" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
         <g class="press" style="animation-delay:.6s"><line x1="160" y1="556" x2="160" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
         <g class="press" style="animation-delay:1.2s"><line x1="250" y1="556" x2="250" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
         <g class="press" style="animation-delay:.3s"><line x1="345" y1="556" x2="345" y2="482" stroke="#ff6a3d" stroke-width="2.5" marker-end="url(#ahM)"/></g>
-        <text x="200" y="590" text-anchor="middle" class="dim" style="fill:#ff6a3d;font-size:11px">EXPANSIÓN URBANA Y AGRÍCOLA</text>
+        <text x="200" y="590" text-anchor="middle" class="dim" style="fill:#ff6a3d;font-size:11px"><tspan data-i="91">EXPANSIÓN URBANA Y AGRÍCOLA</tspan></text>
       </g>
     </svg>
   </div>
@@ -603,13 +632,13 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <!-- 11 · Retornos -->
 <section class="slide" id="s-ret" data-map="site" data-scrim="s-heavy">
   <div class="stack i" style="width:100%;gap:30px">
-    <div class="eyebrow a">Tesis de inversión</div>
-    <h2 class="h2 a d1">Un activo, <em>dos retornos.</em></h2>
+    <div class="eyebrow a"><span data-i="97">Tesis de inversión</span></div>
+    <h2 class="h2 a d1"><span data-i="98">Un activo,</span> <em><span data-i="99">dos retornos.</span></em></h2>
     <div class="ret a d2">
-      <div><div class="plus">Rentabilidad</div><ul>
-        <li>Eco-resort y residencial de baja densidad</li><li>Turismo ecológico y educativo</li><li>Certificación EarthCheck / Green Globe</li></ul></div>
-      <div><div class="plus">Conservación</div><ul>
-        <li>Corredor biológico hacia el lago</li><li>Reserva complementaria vía ONG</li><li>Escuela de ciencias naturales</li></ul></div>
+      <div><div class="plus"><span data-i="100">Rentabilidad</span></div><ul>
+        <li><span data-i="101">Eco-resort y residencial de baja densidad</span></li><li><span data-i="102">Turismo ecológico y educativo</span></li><li><span data-i="103">Certificación EarthCheck / Green Globe</span></li></ul></div>
+      <div><div class="plus"><span data-i="104">Conservación</span></div><ul>
+        <li><span data-i="105">Corredor biológico hacia el lago</span></li><li><span data-i="106">Adquisición de P1, P6 y P7</span></li><li><span data-i="95">Escuela de ciencias naturales</span></li></ul></div>
     </div>
   </div>
 </section>
@@ -617,50 +646,51 @@ html,body{overscroll-behavior:none;touch-action:pan-y}
 <!-- 12 · Cierre -->
 <section class="slide" id="s-close" data-map="site-glow" data-scrim="s-bottom">
   <div class="wrap i">
-    <div class="eyebrow a">Lago Petén Itzá · Petén, Guatemala</div>
+    <div class="eyebrow a"><span data-i="107">Lago Petén Itzá · Petén, Guatemala</span></div>
     <h2 class="display a d1">Reserva <em>Nimá</em></h2>
-    <div class="tag a d2" style="font-family:var(--f-display);font-style:italic;font-size:clamp(20px,2.4vw,34px)">Comprar. Preservar. Desarrollar con límites.</div>
-    <div class="sig a d3"><div>Propietario<b>Pablo Arenales</b></div><div>Estrategia y diseño<b>TORUS.</b></div></div>
+    <div class="tag a d2" style="font-family:var(--f-display);font-style:italic;font-size:clamp(20px,2.4vw,34px)"><span data-i="108">Comprar. Preservar. Desarrollar con límites.</span></div>
+    <div class="sig a d3"><div><span data-i="109">Propietario</span><b>Pablo Arenales</b></div><div><span data-i="110">Estrategia y diseño</span><b>TORUS.</b></div></div>
   </div>
 </section>
 
 <!-- 13 · Fuentes -->
 <section class="slide" id="s-src" data-map="site" data-scrim="s-solid">
   <div class="i" style="display:grid;gap:20px;width:100%">
-    <div class="eyebrow">Fuentes</div>
+    <div class="eyebrow"><span data-i="111">Fuentes</span></div>
     <div class="src">
-      <p><b>Población</b><a href="https://pbi-guatemala.org/fileadmin/user_files/projects/guatemala/files/english/PBI-Special-bulletin-el-peten.pdf" target="_blank" rel="noopener">PBI Guatemala, boletín especial El Petén</a> (≈21,000 hab. en 1960) · <a href="https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2022/05/1700_PETEN.pdf" target="_blank" rel="noopener">SEGEPLAN, Diagnóstico Territorial de Petén</a> (≈64,000 en 1973) · <a href="https://en.wikipedia.org/wiki/Pet%C3%A9n_Department" target="_blank" rel="noopener">INE vía Wikipedia, Petén Department</a> (366,735 en 2002; 595,548 en 2018).</p>
-      <p><b>Deforestación</b><a href="https://science.nasa.gov/earth/earth-observatory/the-shrinking-selva-maya-152940" target="_blank" rel="noopener">NASA Earth Observatory, “The Shrinking Selva Maya” (2024)</a> · Capa de pérdida: Hansen/UMD/Google/USGS/NASA vía <a href="https://data-api.globalforestwatch.org/dataset/umd_tree_cover_loss" target="_blank" rel="noopener">Global Forest Watch</a> · Pérdida por quinquenio en Petén: GFW vía <a href="https://worldrainforests.com/deforestation/archive/Guatemala.htm" target="_blank" rel="noopener">Mongabay, Guatemala deforestation statistics</a> · Cuenca del lago 1986–2001: Milián Vicente, <a href="https://repositorio.catie.ac.cr/handle/11554/5277" target="_blank" rel="noopener">Tenencia y uso de la tierra en la cuenca del Lago Petén Itzá</a>, CATIE · Fragmentación y conectividad: <a href="https://conap.gob.gt/wp-content/uploads/2019/08/PM-BP-Cerro-Cahui.pdf" target="_blank" rel="noopener">CONAP, Plan maestro Biotopo Cerro Cahuí</a> · Incendios 2023–24: <a href="https://agn.gt/?p=393499" target="_blank" rel="noopener">CONAP vía AGN, nov. 2024</a> · Timelapse Landsat: Google Earth Engine.</p>
-      <p><b>Biodiversidad</b><a href="https://www.nature.org/es-us/sobre-tnc/donde-trabajamos/tnc-en-latinoamerica/guatemala/paisajes-iconicos/" target="_blank" rel="noopener">The Nature Conservancy, Guatemala: paisajes icónicos</a> · <a href="https://www.nature.org/es-us/sobre-tnc/donde-trabajamos/tnc-en-latinoamerica/mexico/selva-maya/" target="_blank" rel="noopener">TNC, Selva Maya</a> · <a href="https://e360.yale.edu/features/in_the_land_of_the_maya_a_battle_for_a_vital_forest" target="_blank" rel="noopener">Yale e360, In the Land of the Maya</a> (513 aves, 122 mamíferos, 95 reptiles; ≈200 guacamayas) · <a href="https://guatemala.wcs.org/es-es/Sobre-nosotros/Noticias/articleType/ArticleView/articleId/25169/Corredor-Biocultural-Gran-Selva-Maya-alianza-transfronteriza-para-la-proteccion-del-mayor-bosque-continuo-de-la-region.aspx" target="_blank" rel="noopener">WCS Guatemala, Corredor Biocultural Gran Selva Maya</a> · <a href="https://digi.usac.edu.gt/bvirtual/resumenes2010/inf1001.html" target="_blank" rel="noopener">USAC/DIGI, Biotopo Cerro Cahuí</a> · <a href="https://es.mongabay.com/2016/12/guatemala-las-comunidades-salvaron-la-caoba-la-reserva-la-biosfera-maya/" target="_blank" rel="noopener">Mongabay, la caoba en la RBM</a> · Estados de conservación: Lista Roja UICN.</p>
-      <p><b>Fotografías</b>Wikimedia Commons, licencias Creative Commons: <span id="credits"></span></p>
-      <p><b>Cartografía</b>Imágenes satelitales Esri World Imagery (Esri, Maxar, Earthstar Geographics) · Relieve: Mapzen/AWS Terrain Tiles · Linderos: levantamiento RESERVA NIMA (KMZ) y plano A001, TORUS 2026.</p>
+      <p><b><span data-i="112">Población</span></b><a href="https://pbi-guatemala.org/fileadmin/user_files/projects/guatemala/files/english/PBI-Special-bulletin-el-peten.pdf" target="_blank" rel="noopener"><span data-i="113">PBI Guatemala, boletín especial El Petén</span></a> <span data-i="114">(≈21,000 hab. en 1960) ·</span> <a href="https://portal.segeplan.gob.gt/segeplan/wp-content/uploads/2022/05/1700_PETEN.pdf" target="_blank" rel="noopener"><span data-i="115">SEGEPLAN, Diagnóstico Territorial de Petén</span></a> <span data-i="116">(≈64,000 en 1973) ·</span> <a href="https://en.wikipedia.org/wiki/Pet%C3%A9n_Department" target="_blank" rel="noopener"><span data-i="117">INE vía Wikipedia, Petén Department</span></a> <span data-i="118">(366,735 en 2002; 595,548 en 2018).</span></p>
+      <p><b><span data-i="119">Deforestación</span></b><a href="https://science.nasa.gov/earth/earth-observatory/the-shrinking-selva-maya-152940" target="_blank" rel="noopener">NASA Earth Observatory, “The Shrinking Selva Maya” (2024)</a> <span data-i="120">· Capa de pérdida: Hansen/UMD/Google/USGS/NASA vía</span> <a href="https://data-api.globalforestwatch.org/dataset/umd_tree_cover_loss" target="_blank" rel="noopener">Global Forest Watch</a> <span data-i="121">· Pérdida por quinquenio en Petén: GFW vía</span> <a href="https://worldrainforests.com/deforestation/archive/Guatemala.htm" target="_blank" rel="noopener">Mongabay, Guatemala deforestation statistics</a> <span data-i="122">· Cuenca del lago 1986–2001: Milián Vicente,</span> <a href="https://repositorio.catie.ac.cr/handle/11554/5277" target="_blank" rel="noopener">Tenencia y uso de la tierra en la cuenca del Lago Petén Itzá</a><span data-i="123">, CATIE · Fragmentación y conectividad:</span> <a href="https://conap.gob.gt/wp-content/uploads/2019/08/PM-BP-Cerro-Cahui.pdf" target="_blank" rel="noopener">CONAP, Plan maestro Biotopo Cerro Cahuí</a> <span data-i="124">· Incendios 2023–24:</span> <a href="https://agn.gt/?p=393499" target="_blank" rel="noopener"><span data-i="125">CONAP vía AGN, nov. 2024</span></a> <span data-i="126">· Timelapse Landsat: Google Earth Engine.</span></p>
+      <p><b><span data-i="127">Biodiversidad</span></b><a href="https://www.nature.org/es-us/sobre-tnc/donde-trabajamos/tnc-en-latinoamerica/guatemala/paisajes-iconicos/" target="_blank" rel="noopener">The Nature Conservancy, Guatemala: paisajes icónicos</a> · <a href="https://www.nature.org/es-us/sobre-tnc/donde-trabajamos/tnc-en-latinoamerica/mexico/selva-maya/" target="_blank" rel="noopener">TNC, Selva Maya</a> · <a href="https://e360.yale.edu/features/in_the_land_of_the_maya_a_battle_for_a_vital_forest" target="_blank" rel="noopener">Yale e360, In the Land of the Maya</a> <span data-i="128">(513 aves, 122 mamíferos, 95 reptiles; ≈200 guacamayas) ·</span> <a href="https://guatemala.wcs.org/es-es/Sobre-nosotros/Noticias/articleType/ArticleView/articleId/25169/Corredor-Biocultural-Gran-Selva-Maya-alianza-transfronteriza-para-la-proteccion-del-mayor-bosque-continuo-de-la-region.aspx" target="_blank" rel="noopener">WCS Guatemala, Corredor Biocultural Gran Selva Maya</a> · <a href="https://digi.usac.edu.gt/bvirtual/resumenes2010/inf1001.html" target="_blank" rel="noopener">USAC/DIGI, Biotopo Cerro Cahuí</a> · <a href="https://es.mongabay.com/2016/12/guatemala-las-comunidades-salvaron-la-caoba-la-reserva-la-biosfera-maya/" target="_blank" rel="noopener"><span data-i="129">Mongabay, la caoba en la RBM</span></a> <span data-i="130">· Estados de conservación: Lista Roja UICN.</span></p>
+      <p><b><span data-i="131">Fotografías</span></b><span data-i="132">Wikimedia Commons, licencias Creative Commons:</span> <span id="credits"></span></p>
+      <p><b><span data-i="133">Cartografía</span></b><span data-i="134">Imágenes satelitales Esri World Imagery (Esri, Maxar, Earthstar Geographics) · Relieve: Mapzen/AWS Terrain Tiles · Linderos: levantamiento RESERVA NIMA2 (KMZ) y plano A001, TORUS 2026.</span></p>
     </div>
   </div>
 </section>
 
-<div class="rotate">Gira el teléfono a vertical<br>para ver la presentación.</div>
-<div class="tapnote" id="tapnote">Toca a la derecha para avanzar →</div>
+<div class="rotate"><span data-i="135">Gira el teléfono a vertical</span><br><span data-i="136">para ver la presentación.</span></div>
+<div class="tapnote" id="tapnote"><span data-i="137">Toca a la derecha para avanzar →</span></div>
 <nav class="nav" aria-label="Navegación">
-  <div class="brand"><b>Reserva Nimá</b><span class="c"> · Confidencial</span></div>
+  <div class="brand"><b>Reserva Nimá</b><span class="c"> <span data-i="138">· Confidencial</span></span></div>
   <div class="ctr"><button type="button" id="prev" aria-label="Anterior">←</button><span class="mono" id="ctr">01 / 14</span><button type="button" id="next" aria-label="Siguiente">→</button></div>
+  <div class="lang" role="group" aria-label="Idioma / Language"><button type="button" data-l="es" aria-pressed="true">ES</button><button type="button" data-l="en" aria-pressed="false">EN</button></div>
 </nav>
 
 <div id="lbox" hidden>
   <div class="top"><span class="eyebrow">Google Earth Engine · Landsat 1984–2022</span>
-    <div class="btns"><a class="btn" id="geLink" target="_blank" rel="noopener" href="#">Abrir en Google Earth ↗</a><button class="btn" id="lclose" type="button">Cerrar</button></div></div>
+    <div class="btns"><a class="btn" id="geLink" target="_blank" rel="noopener" href="#"><span data-i="139">Abrir en Google Earth ↗</span></a><button class="btn" id="lclose" type="button"><span data-i="140">Cerrar</span></button></div></div>
   <iframe id="lframe" title="Timelapse Landsat" allowfullscreen></iframe>
 </div>
 
 <script src="https://unpkg.com/maplibre-gl@5.8.0/dist/maplibre-gl.js"></script>
 <script>
 (() => {
-const GEO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"kind":"pablo","id":"P3","name":"Lote A","area":"72,660 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.847266,16.982057],[-89.845764,16.981335],[-89.845455,16.981209],[-89.846791,16.978435],[-89.847218,16.978768],[-89.848694,16.979406],[-89.847266,16.982057]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P5","name":"Lote B","area":"133,050 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.850701,16.983708],[-89.847283,16.982014],[-89.848691,16.9794],[-89.851953,16.980787],[-89.850701,16.983708]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P4","name":"Lote C","area":"216,025 m\u00b2"},"geometry":{"type":"Polygon","coordinates":[[[-89.851905,16.9848],[-89.85054,16.984084],[-89.851953,16.980787],[-89.854578,16.974272],[-89.857588,16.966491],[-89.859221,16.968092],[-89.857292,16.969497],[-89.856614,16.970114],[-89.854971,16.975249],[-89.851905,16.9848]]]}},{"type":"Feature","properties":{"kind":"vecino","id":"V"},"geometry":{"type":"MultiPolygon","coordinates":[[[[-89.863457,16.972419],[-89.860845,16.975689],[-89.859965,16.977132],[-89.858018,16.980472],[-89.857578,16.981736],[-89.857705,16.983267],[-89.858191,16.986109],[-89.858029,16.987242],[-89.851992,16.984534],[-89.854973,16.97525],[-89.856615,16.970115],[-89.857293,16.969498],[-89.859222,16.968094],[-89.863457,16.972419]]],[[[-89.856857,16.968375],[-89.854576,16.974272],[-89.853911,16.975923],[-89.854479,16.968393],[-89.856857,16.968375]]]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8558185,16.9514056],[-89.8544742,16.9683342]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8435015,16.9519944],[-89.8558239,16.9513666],[-89.8565063,16.9509139],[-89.8570466,16.9507468],[-89.8575762,16.9505043],[-89.8581074,16.9502379],[-89.8585036,16.9499521],[-89.8589789,16.9495545],[-89.859416,16.9491943],[-89.8596419,16.9490039]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.8519301,16.9807854],[-89.848705,16.9793734],[-89.8472189,16.9787499],[-89.8467821,16.9784093],[-89.8449007,16.9767746],[-89.8446981,16.9766199],[-89.8438576,16.9763348],[-89.8429587,16.9759474],[-89.8419486,16.9755949],[-89.8410519,16.9752773],[-89.8399542,16.9747818],[-89.8403318,16.9729132],[-89.8406847,16.9712325],[-89.8410369,16.9690063],[-89.8414093,16.9667281],[-89.841478,16.9664579],[-89.841513,16.9663799],[-89.8416684,16.9663697],[-89.8417193,16.9662236],[-89.8423621,16.961687],[-89.8428301,16.9578464],[-89.8431096,16.9558135],[-89.8432537,16.9547189],[-89.8435553,16.9525143],[-89.843602,16.9519605]]}}]};
+let LANG='es';
+const EN_DICT={"89.8557° O": "89.8557° W", "16.9772° N · 89.8557° O": "16.9772° N · 89.8557° W", "Lago Petén Itzá": "Lake Petén Itzá", "Comprar para preservar.": "Buy to preserve.", "Aproximación": "Approach", "Centroamérica": "Central America", "Repetir vuelo": "Replay flight", "Lo que ya se tiene · Pablo Arenales": "Already secured · Pablo Arenales", "La protección ya está": "Protection is already", "en camino.": "under way.", "Predios": "Parcels", "Playa y frente al lago": "Beach and lake frontage", "Del plan maestro de protección": "Of the protection master plan", "61.2 de 567.1 ha": "61.2 of 567.1 ha", "P3, P4 y P5 según plano A001 (42.2 ha); P8 según levantamiento georreferenciado (19.0 ha).": "P3, P4 and P5 per plan A001 (42.2 ha); P8 per georeferenced survey (19.0 ha).", "Plan maestro de protección · Reserva Nimá": "Protection master plan · Reserva Nimá", "Ya se tiene": "Already secured", "Por adquirir · vía el inversionista": "To acquire · through the investor", "De playa y frente al lago": "Of beach and lake frontage", "791 m P3–P5 + 2,548 m P1 (702 m norte · 1,846 m oeste)": "791 m P3–P5 + 2,548 m P1 (702 m north · 1,846 m west)", "Franja de ≈7.7 ha entre P4/P8 y P6 con tenencia por definir; no se incluye en ningún total. P1 sin P4 ni P5. Áreas de P1, P6, P7 y P8 y playa de P1 calculadas del levantamiento georreferenciado; sujetas a verificación registral.": "A ≈7.7 ha strip between P4/P8 and P6 has undetermined tenure and is excluded from all totals. P1 excludes P4 and P5. Areas of P1, P6, P7 and P8 and the P1 beach are calculated from the georeferenced survey, subject to land-registry verification.", "Departamento de Petén · población": "Petén Department · population", "De 21 mil habitantes en 1960 a casi 600 mil en 2018.": "From 21,000 people in 1960 to almost 600,000 in 2018.", "La colonización, la frontera agrícola y la migración convergen sobre la cuenca del lago.": "Settlement, the agricultural frontier and migration are converging on the lake basin.", "Fuentes: 1960 PBI Guatemala · 1973 SEGEPLAN · 2002 Censo INE · 2018 estimación oficial INE.": "Sources: 1960 PBI Guatemala · 1973 SEGEPLAN · 2002 INE census · 2018 official INE estimate.", "Pérdida de cobertura arbórea · lago y alrededores": "Tree cover loss · lake and surroundings", "Bosque perdido acumulado desde 2001 · UMD / Global Forest Watch": "Cumulative forest loss since 2001 · UMD / Global Forest Watch", "Reproducir": "Play", "del bosque de Petén perdido entre 2001 y 2023.": "of Petén’s forest lost between 2001 and 2023.", "Hectáreas perdidas en Petén por quinquenio: 916,452 ha en 2001–2020, el 30% de su cobertura de 2001 (GFW). Porcentaje 2001–2023: NASA Earth Observatory.": "Hectares lost in Petén per five-year period: 916,452 ha in 2001–2020, 30% of its 2001 cover (GFW). 2001–2023 percentage: NASA Earth Observatory.", "Cuenca del lago Petén Itzá · 115,513 ha": "Lake Petén Itzá basin · 115,513 ha", "de la cuenca conservaba bosque en 2001.": "of the basin was still forested in 2001.", "Bosque convertido a agricultura y ganadería": "Forest converted to farming and cattle", "1986–2001 · 13% de la cuenca · CATIE": "1986–2001 · 13% of the basin · CATIE", "De la cuenca ya en agricultura o pasto": "Of the basin already farmland or pasture", "Áreas protegidas de Petén afectadas por incendios": "Protected areas in Petén hit by fires", "Temporada 2023–24 · CONAP": "2023–24 season · CONAP", "“Cobertura forestal muy fragmentada” alrededor del lago; Cerro Cahuí es “el último gran parche de bosque” que une Tikal con el Petén Itzá.": "“Highly fragmented forest cover” around the lake; Cerro Cahuí is “the last large forest patch” linking Tikal with Petén Itzá.", "Plan maestro Biotopo Cerro Cahuí, CONAP. Mapa: pérdida acumulada 2001–2024 alrededor de Reserva Nimá.": "Cerro Cahuí Biotope master plan, CONAP. Map: cumulative loss 2001–2024 around Reserva Nimá.", "Pérdida 2001–": "Loss 2001–", "La oportunidad": "The opportunity", "Lo que no se protege,": "What isn’t protected", "se fragmenta.": "gets fragmented.", "Comprar hoy es la forma más directa de preservar la orilla del lago.": "Buying now is the most direct way to preserve the lakeshore.", "Selva Maya": "Maya Forest", "El segundo bosque tropical más grande de": "The second-largest tropical forest in the", "América.": "Americas.", "Aves": "Birds", "Mamíferos": "Mammals", "Reptiles": "Reptiles", "Especies registradas en la Reserva de la Biosfera Maya · TNC · Yale e360 / WCS.": "Species recorded in the Maya Biosphere Reserve · TNC · Yale e360 / WCS.", "Mismo lago · Biotopo Cerro Cahuí": "Same lake · Cerro Cahuí Biotope", "Jaguar registrado en la orilla norte del Petén Itzá.": "Jaguar recorded on the north shore of Petén Itzá.", "82 aves · 29 mamíferos · 17 reptiles": "82 birds · 29 mammals · 17 reptiles", "El registro de jaguar y murciélagos de bosque maduro indica conectividad con el bosque de Tikal. USAC / CECON.": "Records of jaguar and old-growth forest bats indicate connectivity with the Tikal forest. USAC / CECON.", "Especies documentadas en la Selva Maya y la cuenca del lago": "Species documented in the Maya Forest and the lake basin", "UICN:": "IUCN:", "casi amenazada ·": "near threatened ·", "en peligro": "endangered", "Guacamaya roja": "Scarlet macaw", "Saraguate": "Black howler monkey", "Mono araña": "Spider monkey", "Cocodrilo de pantano": "Morelet’s crocodile", "El dosel que sostiene todo lo demás": "The canopy that holds everything else up", "Árbol nacional": "National tree", "Ceiba pentandra · árbol sagrado maya": "Ceiba pentandra · sacred Maya tree", "Caoba": "Mahogany", "Swietenia macrophylla · recuperada por concesiones comunitarias": "Swietenia macrophylla · recovered by community concessions", "Corredor biológico": "Biological corridor", "Del bosque al agua,": "From forest to water,", "y de regreso.": "and back.", "Una franja continua donde la fauna baja a beber al lago y vuelve a refugiarse en el bosque, sin cruzar zonas desarrolladas.": "A continuous strip where wildlife comes down to drink at the lake and returns to shelter in the forest, without crossing developed areas.", "Ida al agua": "To the water", "Pausa en la orilla": "Pause at the shore", "Regreso al bosque": "Back to the forest", "Caminos existentes": "Existing roads", "Fronteras de desarrollo": "Development frontiers", "Proyectos que generan valor y, a la vez, protegen el borde": "Projects that create value and protect the edge at the same time", "Esquema conceptual · programa por definir": "Conceptual diagram · program to be defined", "NORTE ↑": "NORTH ↑", "Reserva núcleo": "Core reserve", "Bosque protegido · desarrollo de baja densidad": "Protected forest · low-density development", "Corredor": "Corridor", "biológico": " ", "acceso de": "wildlife access", "fauna al agua": "to water", "Por adquirir": "To acquire", "Frontera sur": "Southern frontier", "Escuela de ciencias naturales · turismo ecológico": "Natural science school · ecotourism", "Borde activo": "Active edge", "EXPANSIÓN URBANA Y AGRÍCOLA": "URBAN AND AGRICULTURAL EXPANSION", "Bosque protegido": "Protected forest", "desarrollo de baja densidad": "low-density development", "P1 · P6 · P7 · inversionista": "P1 · P6 · P7 · investor", "Escuela de ciencias naturales": "Natural science school", "turismo ecológico": "ecotourism", "Tesis de inversión": "Investment thesis", "Un activo,": "One asset,", "dos retornos.": "two returns.", "Rentabilidad": "Financial return", "Eco-resort y residencial de baja densidad": "Eco-resort and low-density residential", "Turismo ecológico y educativo": "Eco and educational tourism", "Certificación EarthCheck / Green Globe": "EarthCheck / Green Globe certification", "Conservación": "Conservation", "Corredor biológico hacia el lago": "Biological corridor to the lake", "Adquisición de P1, P6 y P7": "Acquisition of P1, P6 and P7", "Lago Petén Itzá · Petén, Guatemala": "Lake Petén Itzá · Petén, Guatemala", "Comprar. Preservar. Desarrollar con límites.": "Buy. Preserve. Develop within limits.", "Propietario": "Owner", "Estrategia y diseño": "Strategy and design", "Fuentes": "Sources", "Población": "Population", "PBI Guatemala, boletín especial El Petén": "PBI Guatemala, El Petén special bulletin", "(≈21,000 hab. en 1960) ·": "(≈21,000 people in 1960) ·", "SEGEPLAN, Diagnóstico Territorial de Petén": "SEGEPLAN, Petén Territorial Assessment", "(≈64,000 en 1973) ·": "(≈64,000 in 1973) ·", "INE vía Wikipedia, Petén Department": "INE via Wikipedia, Petén Department", "(366,735 en 2002; 595,548 en 2018).": "(366,735 in 2002; 595,548 in 2018).", "Deforestación": "Deforestation", "· Capa de pérdida: Hansen/UMD/Google/USGS/NASA vía": "· Loss layer: Hansen/UMD/Google/USGS/NASA via", "· Pérdida por quinquenio en Petén: GFW vía": "· Five-year loss in Petén: GFW via", "· Cuenca del lago 1986–2001: Milián Vicente,": "· Lake basin 1986–2001: Milián Vicente,", ", CATIE · Fragmentación y conectividad:": ", CATIE · Fragmentation and connectivity:", "· Incendios 2023–24:": "· Fires 2023–24:", "CONAP vía AGN, nov. 2024": "CONAP via AGN, Nov. 2024", "· Timelapse Landsat: Google Earth Engine.": "· Landsat timelapse: Google Earth Engine.", "Biodiversidad": "Biodiversity", "(513 aves, 122 mamíferos, 95 reptiles; ≈200 guacamayas) ·": "(513 birds, 122 mammals, 95 reptiles; ≈200 macaws) ·", "Mongabay, la caoba en la RBM": "Mongabay, mahogany in the Maya Biosphere Reserve", "· Estados de conservación: Lista Roja UICN.": "· Conservation status: IUCN Red List.", "Fotografías": "Photographs", "Wikimedia Commons, licencias Creative Commons:": "Wikimedia Commons, Creative Commons licenses:", "Cartografía": "Cartography", "Imágenes satelitales Esri World Imagery (Esri, Maxar, Earthstar Geographics) · Relieve: Mapzen/AWS Terrain Tiles · Linderos: levantamiento RESERVA NIMA2 (KMZ) y plano A001, TORUS 2026.": "Satellite imagery Esri World Imagery (Esri, Maxar, Earthstar Geographics) · Terrain: Mapzen/AWS Terrain Tiles · Boundaries: RESERVA NIMA2 survey (KMZ) and plan A001, TORUS 2026.", "Gira el teléfono a vertical": "Turn your phone upright", "para ver la presentación.": "to view the presentation.", "Toca a la derecha para avanzar →": "Tap the right side to advance →", "· Confidencial": "· Confidential", "Abrir en Google Earth ↗": "Open in Google Earth ↗", "Cerrar": "Close", "Guatemala": "Guatemala", "Petén — Selva Maya": "Petén — Maya Forest", "Lago Petén Itzá · Petén": "Lake Petén Itzá · Petén", "Un tercio del territorio nacional": "One third of the country", "99 km² · 160 m de profundidad": "99 km² · 160 m deep", "Cargando datos satelitales": "Loading satellite data", "2,548 m playa P1": "2,548 m beach P1", "791 m playa": "791 m beach", "≈7.7 ha por definir": "≈7.7 ha to be defined", "Bosque ⇄ lago": "Forest ⇄ lake", "≈21 mil": "≈21k", "≈64 mil": "≈64k", "Población de Petén 1960–2018": "Petén population 1960–2018", "≈200 · RBM": "≈200 · MBR", "Timelapse Landsat 1984–2022": "Landsat timelapse 1984–2022"};
+const I18N=[["89.8557° O", "89.8557° W"], ["16.9772° N · 89.8557° O", "16.9772° N · 89.8557° W"], ["Lago Petén Itzá", "Lake Petén Itzá"], ["Comprar para preservar.", "Buy to preserve."], ["Aproximación", "Approach"], ["Centroamérica", "Central America"], ["Repetir vuelo", "Replay flight"], ["Lo que ya se tiene · Pablo Arenales", "Already secured · Pablo Arenales"], ["La protección ya está", "Protection is already"], ["en camino.", "under way."], ["Predios", "Parcels"], ["Playa y frente al lago", "Beach and lake frontage"], ["Del plan maestro de protección", "Of the protection master plan"], ["61.2 de 567.1 ha", "61.2 of 567.1 ha"], ["P3, P4 y P5 según plano A001 (42.2 ha); P8 según levantamiento georreferenciado (19.0 ha).", "P3, P4 and P5 per plan A001 (42.2 ha); P8 per georeferenced survey (19.0 ha)."], ["Plan maestro de protección · Reserva Nimá", "Protection master plan · Reserva Nimá"], ["Ya se tiene", "Already secured"], ["Por adquirir · vía el inversionista", "To acquire · through the investor"], ["De playa y frente al lago", "Of beach and lake frontage"], ["791 m P3–P5 + 2,548 m P1 (702 m norte · 1,846 m oeste)", "791 m P3–P5 + 2,548 m P1 (702 m north · 1,846 m west)"], ["Franja de ≈7.7 ha entre P4/P8 y P6 con tenencia por definir; no se incluye en ningún total. P1 sin P4 ni P5. Áreas de P1, P6, P7 y P8 y playa de P1 calculadas del levantamiento georreferenciado; sujetas a verificación registral.", "A ≈7.7 ha strip between P4/P8 and P6 has undetermined tenure and is excluded from all totals. P1 excludes P4 and P5. Areas of P1, P6, P7 and P8 and the P1 beach are calculated from the georeferenced survey, subject to land-registry verification."], ["Departamento de Petén · población", "Petén Department · population"], ["De 21 mil habitantes en 1960 a casi 600 mil en 2018.", "From 21,000 people in 1960 to almost 600,000 in 2018."], ["La colonización, la frontera agrícola y la migración convergen sobre la cuenca del lago.", "Settlement, the agricultural frontier and migration are converging on the lake basin."], ["Fuentes: 1960 PBI Guatemala · 1973 SEGEPLAN · 2002 Censo INE · 2018 estimación oficial INE.", "Sources: 1960 PBI Guatemala · 1973 SEGEPLAN · 2002 INE census · 2018 official INE estimate."], ["Pérdida de cobertura arbórea · lago y alrededores", "Tree cover loss · lake and surroundings"], ["Bosque perdido acumulado desde 2001 · UMD / Global Forest Watch", "Cumulative forest loss since 2001 · UMD / Global Forest Watch"], ["Reproducir", "Play"], ["Timelapse Landsat 1984–2022", "Landsat timelapse 1984–2022"], ["del bosque de Petén perdido entre 2001 y 2023.", "of Petén’s forest lost between 2001 and 2023."], ["Hectáreas perdidas en Petén por quinquenio: 916,452 ha en 2001–2020, el 30% de su cobertura de 2001 (GFW). Porcentaje 2001–2023: NASA Earth Observatory.", "Hectares lost in Petén per five-year period: 916,452 ha in 2001–2020, 30% of its 2001 cover (GFW). 2001–2023 percentage: NASA Earth Observatory."], ["Cuenca del lago Petén Itzá · 115,513 ha", "Lake Petén Itzá basin · 115,513 ha"], ["de la cuenca conservaba bosque en 2001.", "of the basin was still forested in 2001."], ["Bosque convertido a agricultura y ganadería", "Forest converted to farming and cattle"], ["1986–2001 · 13% de la cuenca · CATIE", "1986–2001 · 13% of the basin · CATIE"], ["De la cuenca ya en agricultura o pasto", "Of the basin already farmland or pasture"], ["Áreas protegidas de Petén afectadas por incendios", "Protected areas in Petén hit by fires"], ["Temporada 2023–24 · CONAP", "2023–24 season · CONAP"], ["“Cobertura forestal muy fragmentada” alrededor del lago; Cerro Cahuí es “el último gran parche de bosque” que une Tikal con el Petén Itzá.", "“Highly fragmented forest cover” around the lake; Cerro Cahuí is “the last large forest patch” linking Tikal with Petén Itzá."], ["Plan maestro Biotopo Cerro Cahuí, CONAP. Mapa: pérdida acumulada 2001–2024 alrededor de Reserva Nimá.", "Cerro Cahuí Biotope master plan, CONAP. Map: cumulative loss 2001–2024 around Reserva Nimá."], ["Pérdida 2001–", "Loss 2001–"], ["La oportunidad", "The opportunity"], ["Lo que no se protege,", "What isn’t protected"], ["se fragmenta.", "gets fragmented."], ["Comprar hoy es la forma más directa de preservar la orilla del lago.", "Buying now is the most direct way to preserve the lakeshore."], ["Selva Maya", "Maya Forest"], ["El segundo bosque tropical más grande de", "The second-largest tropical forest in the"], ["América.", "Americas."], ["Aves", "Birds"], ["Mamíferos", "Mammals"], ["Especies registradas en la Reserva de la Biosfera Maya · TNC · Yale e360 / WCS.", "Species recorded in the Maya Biosphere Reserve · TNC · Yale e360 / WCS."], ["Mismo lago · Biotopo Cerro Cahuí", "Same lake · Cerro Cahuí Biotope"], ["Jaguar registrado en la orilla norte del Petén Itzá.", "Jaguar recorded on the north shore of Petén Itzá."], ["82 aves · 29 mamíferos · 17 reptiles", "82 birds · 29 mammals · 17 reptiles"], ["El registro de jaguar y murciélagos de bosque maduro indica conectividad con el bosque de Tikal. USAC / CECON.", "Records of jaguar and old-growth forest bats indicate connectivity with the Tikal forest. USAC / CECON."], ["Especies documentadas en la Selva Maya y la cuenca del lago", "Species documented in the Maya Forest and the lake basin"], ["UICN:", "IUCN:"], ["casi amenazada ·", "near threatened ·"], ["en peligro", "endangered"], ["≈200 · RBM", "≈200 · MBR"], ["Guacamaya roja", "Scarlet macaw"], ["Saraguate", "Black howler monkey"], ["Mono araña", "Spider monkey"], ["Cocodrilo de pantano", "Morelet’s crocodile"], ["El dosel que sostiene todo lo demás", "The canopy that holds everything else up"], ["Árbol nacional", "National tree"], ["Ceiba pentandra · árbol sagrado maya", "Ceiba pentandra · sacred Maya tree"], ["Caoba", "Mahogany"], ["Swietenia macrophylla · recuperada por concesiones comunitarias", "Swietenia macrophylla · recovered by community concessions"], ["Corredor biológico", "Biological corridor"], ["Del bosque al agua,", "From forest to water,"], ["y de regreso.", "and back."], ["Una franja continua donde la fauna baja a beber al lago y vuelve a refugiarse en el bosque, sin cruzar zonas desarrolladas.", "A continuous strip where wildlife comes down to drink at the lake and returns to shelter in the forest, without crossing developed areas."], ["Ida al agua", "To the water"], ["Pausa en la orilla", "Pause at the shore"], ["Regreso al bosque", "Back to the forest"], ["Caminos existentes", "Existing roads"], ["Fronteras de desarrollo", "Development frontiers"], ["Proyectos que generan valor y, a la vez, protegen el borde", "Projects that create value and protect the edge at the same time"], ["Esquema conceptual · programa por definir", "Conceptual diagram · program to be defined"], ["NORTE ↑", "NORTH ↑"], ["Reserva núcleo", "Core reserve"], ["Bosque protegido · desarrollo de baja densidad", "Protected forest · low-density development"], ["Corredor", "Corridor"], ["biológico", " "], ["acceso de", "wildlife access"], ["fauna al agua", "to water"], ["Por adquirir", "To acquire"], ["Frontera sur", "Southern frontier"], ["Escuela de ciencias naturales · turismo ecológico", "Natural science school · ecotourism"], ["Borde activo", "Active edge"], ["EXPANSIÓN URBANA Y AGRÍCOLA", "URBAN AND AGRICULTURAL EXPANSION"], ["Bosque protegido", "Protected forest"], ["desarrollo de baja densidad", "low-density development"], ["P1 · P6 · P7 · inversionista", "P1 · P6 · P7 · investor"], ["Escuela de ciencias naturales", "Natural science school"], ["turismo ecológico", "ecotourism"], ["Tesis de inversión", "Investment thesis"], ["Un activo,", "One asset,"], ["dos retornos.", "two returns."], ["Rentabilidad", "Financial return"], ["Eco-resort y residencial de baja densidad", "Eco-resort and low-density residential"], ["Turismo ecológico y educativo", "Eco and educational tourism"], ["Certificación EarthCheck / Green Globe", "EarthCheck / Green Globe certification"], ["Conservación", "Conservation"], ["Corredor biológico hacia el lago", "Biological corridor to the lake"], ["Adquisición de P1, P6 y P7", "Acquisition of P1, P6 and P7"], ["Lago Petén Itzá · Petén, Guatemala", "Lake Petén Itzá · Petén, Guatemala"], ["Comprar. Preservar. Desarrollar con límites.", "Buy. Preserve. Develop within limits."], ["Propietario", "Owner"], ["Estrategia y diseño", "Strategy and design"], ["Fuentes", "Sources"], ["Población", "Population"], ["PBI Guatemala, boletín especial El Petén", "PBI Guatemala, El Petén special bulletin"], ["(≈21,000 hab. en 1960) ·", "(≈21,000 people in 1960) ·"], ["SEGEPLAN, Diagnóstico Territorial de Petén", "SEGEPLAN, Petén Territorial Assessment"], ["(≈64,000 en 1973) ·", "(≈64,000 in 1973) ·"], ["INE vía Wikipedia, Petén Department", "INE via Wikipedia, Petén Department"], ["(366,735 en 2002; 595,548 en 2018).", "(366,735 in 2002; 595,548 in 2018)."], ["Deforestación", "Deforestation"], ["· Capa de pérdida: Hansen/UMD/Google/USGS/NASA vía", "· Loss layer: Hansen/UMD/Google/USGS/NASA via"], ["· Pérdida por quinquenio en Petén: GFW vía", "· Five-year loss in Petén: GFW via"], ["· Cuenca del lago 1986–2001: Milián Vicente,", "· Lake basin 1986–2001: Milián Vicente,"], [", CATIE · Fragmentación y conectividad:", ", CATIE · Fragmentation and connectivity:"], ["· Incendios 2023–24:", "· Fires 2023–24:"], ["CONAP vía AGN, nov. 2024", "CONAP via AGN, Nov. 2024"], ["· Timelapse Landsat: Google Earth Engine.", "· Landsat timelapse: Google Earth Engine."], ["Biodiversidad", "Biodiversity"], ["(513 aves, 122 mamíferos, 95 reptiles; ≈200 guacamayas) ·", "(513 birds, 122 mammals, 95 reptiles; ≈200 macaws) ·"], ["Mongabay, la caoba en la RBM", "Mongabay, mahogany in the Maya Biosphere Reserve"], ["· Estados de conservación: Lista Roja UICN.", "· Conservation status: IUCN Red List."], ["Fotografías", "Photographs"], ["Wikimedia Commons, licencias Creative Commons:", "Wikimedia Commons, Creative Commons licenses:"], ["Cartografía", "Cartography"], ["Imágenes satelitales Esri World Imagery (Esri, Maxar, Earthstar Geographics) · Relieve: Mapzen/AWS Terrain Tiles · Linderos: levantamiento RESERVA NIMA2 (KMZ) y plano A001, TORUS 2026.", "Satellite imagery Esri World Imagery (Esri, Maxar, Earthstar Geographics) · Terrain: Mapzen/AWS Terrain Tiles · Boundaries: RESERVA NIMA2 survey (KMZ) and plan A001, TORUS 2026."], ["Gira el teléfono a vertical", "Turn your phone upright"], ["para ver la presentación.", "to view the presentation."], ["Toca a la derecha para avanzar →", "Tap the right side to advance →"], ["· Confidencial", "· Confidential"], ["Abrir en Google Earth ↗", "Open in Google Earth ↗"], ["Cerrar", "Close"]];
+const tr=s=>LANG==='en'&&EN_DICT[s]!=null?EN_DICT[s]:s;
+const GEO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"kind":"pablo","id":"P3"},"geometry":{"type":"Polygon","coordinates":[[[-89.845325,16.981156],[-89.845873,16.980131],[-89.846747,16.978398],[-89.847218,16.978765],[-89.848694,16.979406],[-89.847265,16.982056],[-89.845764,16.981335],[-89.845325,16.981156]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P5"},"geometry":{"type":"Polygon","coordinates":[[[-89.851943,16.98081],[-89.850702,16.983706],[-89.847265,16.982056],[-89.848694,16.979406],[-89.851943,16.98081]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P4"},"geometry":{"type":"Polygon","coordinates":[[[-89.859222,16.968091],[-89.857292,16.969495],[-89.856614,16.970112],[-89.854971,16.975247],[-89.851905,16.984798],[-89.850541,16.984082],[-89.851946,16.980802],[-89.854578,16.974271],[-89.857589,16.96649],[-89.859222,16.968091]]]}},{"type":"Feature","properties":{"kind":"pablo","id":"P8"},"geometry":{"type":"Polygon","coordinates":[[[-89.85391,16.975929],[-89.85411,16.969328],[-89.854684,16.966151],[-89.857514,16.966427],[-89.857589,16.96649],[-89.854578,16.974271],[-89.85391,16.975929]]]}},{"type":"Feature","properties":{"kind":"adq","id":"P1"},"geometry":{"type":"Polygon","coordinates":[[[-89.859223,16.968092],[-89.863626,16.972434],[-89.862831,16.973226],[-89.860987,16.975379],[-89.859163,16.978167],[-89.858169,16.980124],[-89.857821,16.981011],[-89.857745,16.981529],[-89.857719,16.981873],[-89.857717,16.982518],[-89.857762,16.983282],[-89.85783,16.98412],[-89.857963,16.984697],[-89.858134,16.985253],[-89.858288,16.985879],[-89.858324,16.986515],[-89.858093,16.987018],[-89.857957,16.98723],[-89.851992,16.984534],[-89.854973,16.975248],[-89.856616,16.970113],[-89.857294,16.969497],[-89.859223,16.968092]]]}},{"type":"Feature","properties":{"kind":"adq","id":"P6"},"geometry":{"type":"Polygon","coordinates":[[[-89.854624,16.9662],[-89.851949,16.980794],[-89.851943,16.98081],[-89.848694,16.979406],[-89.847218,16.978765],[-89.846721,16.978378],[-89.845822,16.977673],[-89.844797,16.976679],[-89.844307,16.976469],[-89.84395,16.976375],[-89.839864,16.974796],[-89.840582,16.970964],[-89.840995,16.968706],[-89.841427,16.966296],[-89.841638,16.96635],[-89.85333,16.96471],[-89.854624,16.9662]]]}},{"type":"Feature","properties":{"kind":"adq","id":"P7"},"geometry":{"type":"Polygon","coordinates":[[[-89.855843,16.951373],[-89.85495,16.962075],[-89.853581,16.96319],[-89.854777,16.964197],[-89.854624,16.9662],[-89.85333,16.96471],[-89.841638,16.96635],[-89.841478,16.966309],[-89.843813,16.951996],[-89.855843,16.951373]]]}},{"type":"Feature","properties":{"kind":"tbd","id":"T"},"geometry":{"type":"Polygon","coordinates":[[[-89.854624,16.9662],[-89.854684,16.966151],[-89.85411,16.969328],[-89.85391,16.975929],[-89.851949,16.980794],[-89.854624,16.9662]]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.855843,16.951368],[-89.854621,16.966217]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.843803,16.951997],[-89.855842,16.951371],[-89.856506,16.950914],[-89.857047,16.950747],[-89.857576,16.950504],[-89.858107,16.950238],[-89.858834,16.949689],[-89.859733,16.948959],[-89.860363,16.948614],[-89.861267,16.947976]]}},{"type":"Feature","properties":{"kind":"camino"},"geometry":{"type":"LineString","coordinates":[[-89.851943,16.980806],[-89.848695,16.979406],[-89.847215,16.978763],[-89.846747,16.978396],[-89.846006,16.977814],[-89.845824,16.977669],[-89.8448,16.976682],[-89.844316,16.976474],[-89.843957,16.976376],[-89.84103,16.975241],[-89.839864,16.974792],[-89.840224,16.972868],[-89.840539,16.971204],[-89.840947,16.968962],[-89.841341,16.9668],[-89.841383,16.966545],[-89.841406,16.966401],[-89.841422,16.966297],[-89.841481,16.96631],[-89.842237,16.961676],[-89.842859,16.957855],[-89.843189,16.955835],[-89.843371,16.954732],[-89.843725,16.952537],[-89.84381,16.951998]]}}]};
 const SITE = [-89.8548, 16.9768];
-const FRONT={type:'FeatureCollection',features:[
-  {type:'Feature',properties:{kind:'pablo'},geometry:{type:'LineString',coordinates:[[-89.847266,16.982057],[-89.845764,16.981335],[-89.845455,16.981209]]}},
-  {type:'Feature',properties:{kind:'pablo'},geometry:{type:'LineString',coordinates:[[-89.850701,16.983708],[-89.847283,16.982014]]}},
-  {type:'Feature',properties:{kind:'pablo'},geometry:{type:'LineString',coordinates:[[-89.851905,16.984800],[-89.850540,16.984084]]}},
-  {type:'Feature',properties:{kind:'vecino'},geometry:{type:'LineString',coordinates:[[-89.858029,16.987242],[-89.851991,16.984533]]}}]};
+const FRONT={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"kind":"pablo"},"geometry":{"type":"LineString","coordinates":[[-89.845325,16.981156],[-89.845764,16.981335],[-89.847265,16.982056]]}},{"type":"Feature","properties":{"kind":"pablo"},"geometry":{"type":"LineString","coordinates":[[-89.847265,16.982056],[-89.850702,16.983706]]}},{"type":"Feature","properties":{"kind":"pablo"},"geometry":{"type":"LineString","coordinates":[[-89.850541,16.984082],[-89.851905,16.984798]]}},{"type":"Feature","properties":{"kind":"adq"},"geometry":{"type":"LineString","coordinates":[[-89.851991,16.984533],[-89.857957,16.98723],[-89.858093,16.987018],[-89.858324,16.986515],[-89.858288,16.985879],[-89.858134,16.985253],[-89.857963,16.984697],[-89.85783,16.98412],[-89.857762,16.983282],[-89.857717,16.982518],[-89.857719,16.981873],[-89.857745,16.981529],[-89.857821,16.981011],[-89.858169,16.980124],[-89.859163,16.978167],[-89.860987,16.975379],[-89.862831,16.973226]]}}]};
 
 const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const MQ = window.matchMedia('(max-width:760px), (max-width:1024px) and (orientation:portrait) and (pointer:coarse)');
@@ -708,16 +738,18 @@ const map = new maplibregl.Map({
     layers:[
       {id:'sat',type:'raster',source:'sat',paint:{'raster-saturation':-.15,'raster-contrast':.08,'raster-brightness-max':.92}},
       {id:'ref',type:'raster',source:'ref',paint:{'raster-opacity':0,'raster-opacity-transition':{duration:800}}},
-      {id:'lot-fill-v',type:'fill',source:'lots',filter:['==',['get','kind'],'vecino'],paint:{'fill-color':'#ece6d8','fill-opacity':0,'fill-opacity-transition':{duration:900}}},
+      {id:'lot-fill-v',type:'fill',source:'lots',filter:['==',['get','kind'],'adq'],paint:{'fill-color':'#ece6d8','fill-opacity':0,'fill-opacity-transition':{duration:900}}},
       {id:'lot-fill-p',type:'fill',source:'lots',filter:['==',['get','kind'],'pablo'],paint:{'fill-color':'#8fd3b6','fill-opacity':0,'fill-opacity-transition':{duration:900}}},
       {id:'roads',type:'line',source:'roads',paint:{'line-color':'#ece6d8','line-width':1.6,'line-dasharray':[2,2],'line-opacity':0,'line-opacity-transition':{duration:800}}},
-      {id:'outl-v',type:'line',source:'outl',filter:['==',['get','kind'],'vecino'],layout:{'line-join':'round'},paint:{'line-width':2,'line-dasharray':[3,2],'line-color':'#ece6d8','line-opacity':0,'line-opacity-transition':{duration:900}}},
+      {id:'outl-v',type:'line',source:'outl',filter:['==',['get','kind'],'adq'],layout:{'line-join':'round'},paint:{'line-width':2,'line-dasharray':[3,2],'line-color':'#ece6d8','line-opacity':0,'line-opacity-transition':{duration:900}}},
+      {id:'tbd-fill',type:'fill',source:'lots',filter:['==',['get','kind'],'tbd'],paint:{'fill-color':'#e7c46a','fill-opacity':0,'fill-opacity-transition':{duration:900}}},
+      {id:'outl-t',type:'line',source:'outl',filter:['==',['get','kind'],'tbd'],layout:{'line-join':'round'},paint:{'line-width':1.6,'line-dasharray':[1.5,1.5],'line-color':'#e7c46a','line-opacity':0,'line-opacity-transition':{duration:900}}},
       {id:'outl-p-glow',type:'line',source:'outl',filter:['==',['get','kind'],'pablo'],layout:{'line-join':'round'},paint:{'line-width':10,'line-blur':8,'line-color':'#8fd3b6','line-opacity':0,'line-opacity-transition':{duration:900}}},
       {id:'outl-p',type:'line',source:'outl',filter:['==',['get','kind'],'pablo'],layout:{'line-join':'round','line-cap':'round'},paint:{'line-width':2.6,'line-gradient':['step',['line-progress'],'#8fd3b6',0,'rgba(0,0,0,0)']}},
       {id:'corr-line',type:'line',source:'corr',layout:{'line-cap':'round'},paint:{'line-width':['interpolate',['linear'],['zoom'],13,6,17,26],'line-blur':6,'line-opacity':0,'line-opacity-transition':{duration:900},
         'line-gradient':['interpolate',['linear'],['line-progress'],0,'rgba(143,211,182,0.05)',1,'rgba(143,211,182,0.75)']}},
-      {id:'front-glow',type:'line',source:'front',layout:{'line-cap':'round'},paint:{'line-width':14,'line-blur':10,'line-color':['match',['get','kind'],'vecino','#ece6d8','#8fd3b6'],'line-opacity':0,'line-opacity-transition':{duration:900}}},
-      {id:'front',type:'line',source:'front',layout:{'line-cap':'round'},paint:{'line-width':4,'line-color':['match',['get','kind'],'vecino','#ece6d8','#8fd3b6'],'line-opacity':0,'line-opacity-transition':{duration:900}}},
+      {id:'front-glow',type:'line',source:'front',layout:{'line-cap':'round'},paint:{'line-width':14,'line-blur':10,'line-color':['match',['get','kind'],'adq','#ece6d8','#8fd3b6'],'line-opacity':0,'line-opacity-transition':{duration:900}}},
+      {id:'front',type:'line',source:'front',layout:{'line-cap':'round'},paint:{'line-width':4,'line-color':['match',['get','kind'],'adq','#ece6d8','#8fd3b6'],'line-opacity':0,'line-opacity-transition':{duration:900}}},
       {id:'flow',type:'circle',source:'flow',paint:{'circle-radius':['interpolate',['linear'],['zoom'],13,4.5,17,10],'circle-color':['get','c'],'circle-blur':.35,'circle-stroke-width':1,'circle-stroke-color':'rgba(7,16,18,.6)','circle-opacity':['get','o']}}
     ]
   }
@@ -725,15 +757,16 @@ const map = new maplibregl.Map({
 window.__map = map;
 
 /* HTML markers */
-const mk = (lnglat, html, cls='') => { const w=document.createElement('div'); const el=document.createElement('div'); el.className='mk '+cls; el.innerHTML=html; w.appendChild(el); new maplibregl.Marker({element:w,anchor:'center'}).setLngLat(lnglat).addTo(map); return el; };
+const mk = (lnglat, html, cls='') => { const w=document.createElement('div'); const el=document.createElement('div'); el.className='mk '+cls; el.dataset.es=html; el.innerHTML=tr(html); w.appendChild(el); new maplibregl.Marker({element:w,anchor:'center'}).setLngLat(lnglat).addTo(map); return el; };
 const M = {
   flores: mk([-89.8833,16.9297],'Flores'),
   tikal:  mk([-89.6237,17.2220],'Tikal'),
   site:   mk([SITE[0],SITE[1]+0.0005],'Reserva Nimá','big'),
-  haP:    mk([-89.8489,16.9812],'42.2 ha','ha'),
-  haV:    mk([-89.8604,16.9735],'≈123.6 ha','ha v'),
-  frV:    mk([-89.8560,16.9884],'≈710 m frente al lago','ha v'),
-  frP:    mk([-89.8512,16.9862],'791 m frente al lago','ha'),
+  haP:    mk([-89.8556,16.9705],'61.2 ha','ha'),
+  haV:    mk([-89.8478,16.9640],'≈505.9 ha','ha v'),
+  frV:    mk([-89.8642,16.9790],'2,548 m playa P1','ha v'),
+  frP:    mk([-89.8478,16.9848],'791 m playa','ha'),
+  tbd:    mk([-89.8512,16.9768],'≈7.7 ha por definir','ha t'),
   corr:   mk([corrPath[0][0]+0.0035,corrPath[0][1]+0.004],'Bosque ⇄ lago','ha')
 };
 const showMk = on => Object.entries(M).forEach(([k,el])=>el.classList.toggle('on',on.includes(k)));
@@ -756,7 +789,7 @@ function lossTiles(){
 }
 let lossTotal=0, lossDone=0;
 function lossProgress(){ const p=lossTotal?Math.round(lossDone/lossTotal*100):0;
-  document.querySelectorAll('.lstat').forEach(e=>{ e.textContent=p<100?`Cargando datos satelitales ${p}%`:''; }); }
+  document.querySelectorAll('.lstat').forEach(e=>{ e.textContent=p<100?`${tr('Cargando datos satelitales')} ${p}%`:''; }); }
 function buildLoss(){
   const tiles=lossTiles(), key=tiles.map(t=>t.join('/')).join(',');
   if(key===lossBuilt) { placeLoss(); return; }
@@ -794,9 +827,12 @@ function trace(on){
   traceRAF=requestAnimationFrame(tick);
 }
 function layers({lots=false,vec=false,roadsOn=false,glow=false,corr=false,ref=false,front=false}){
+  const ff=front==='pablo'?['==',['get','kind'],'pablo']:null;
+  map.setFilter('front',ff); map.setFilter('front-glow',ff);
   map.setPaintProperty('front','line-opacity',front?1:0); map.setPaintProperty('front-glow','line-opacity',front?.55:0);
+  map.setPaintProperty('tbd-fill','fill-opacity',vec?0.28:0); map.setPaintProperty('outl-t','line-opacity',vec?0.95:0);
   map.setPaintProperty('lot-fill-p','fill-opacity',lots?0.22:0);
-  map.setPaintProperty('lot-fill-v','fill-opacity',vec?0.08:0);
+  map.setPaintProperty('lot-fill-v','fill-opacity',vec?0.13:0);
   map.setPaintProperty('outl-v','line-opacity',vec?0.85:0);
   map.setPaintProperty('outl-p-glow','line-opacity',glow?0.7:0);
   map.setPaintProperty('roads','line-opacity',roadsOn?0.7:0);
@@ -841,9 +877,9 @@ map.on('moveend',()=>{ if(spinOn) spin(); });
 const hud=document.getElementById('hud');
 map.on('move',()=>{ if(!hud.classList.contains('on')) return; const c=map.getCenter();
   document.getElementById('hlat').textContent=Math.abs(c.lat).toFixed(4)+'° '+(c.lat>=0?'N':'S');
-  document.getElementById('hlng').textContent=Math.abs(c.lng).toFixed(4)+'° '+(c.lng<0?'O':'E');
+  document.getElementById('hlng').textContent=Math.abs(c.lng).toFixed(4)+'° '+(c.lng<0?(LANG==='en'?'W':'O'):'E');
   const alt=40075016*Math.cos(c.lat*Math.PI/180)/Math.pow(2,map.getZoom()+1)*1.2; // rough eye altitude
-  document.getElementById('halt').textContent=alt>10000?Math.round(alt/1000).toLocaleString('es-GT')+' km':Math.round(alt).toLocaleString('es-GT')+' m'; });
+  document.getElementById('halt').textContent=alt>10000?Math.round(alt/1000).toLocaleString(LANG==='en'?'en-US':'es-GT')+' km':Math.round(alt).toLocaleString(LANG==='en'?'en-US':'es-GT')+' m'; });
 
 /* fly-in sequence */
 const WAY=[
@@ -851,7 +887,7 @@ const WAY=[
   {t:'Guatemala', e:'108,889 km²', c:[-90.25,15.7], z:6.6, p:20, b:0, d:5200},
   {t:'Petén — Selva Maya', e:'Un tercio del territorio nacional', c:[-89.85,16.95], z:8.6, p:35, b:-8, d:5200},
   {t:'Lago Petén Itzá', e:'99 km² · 160 m de profundidad', c:[-89.835,16.975], z:11.6, p:45, b:-15, d:5600},
-  {t:'Reserva Nimá', e:'Lago Petén Itzá · Petén', c:SITE, z:14.9, p:58, b:-22, d:6000}
+  {t:'Reserva Nimá', e:'Lago Petén Itzá · Petén', c:[-89.8520,16.9730], z:14.1, p:55, b:-18, d:6000}
 ];
 let flyToken=0;
 async function flySeq(){
@@ -871,7 +907,8 @@ async function flySeq(){
   if(tok!==flyToken) return;
   lotsIn(true); showMk(['site']);
 }
-function setCap(e,t){ const T=document.getElementById('flyT'), E=document.getElementById('flyEy'); T.style.opacity=0; setTimeout(()=>{T.textContent=t;E.textContent=e;T.style.opacity=1;},250); }
+let capE='Aproximación', capT='Centroamérica';
+function setCap(e,t){ capE=e; capT=t; const T=document.getElementById('flyT'), E=document.getElementById('flyEy'); T.style.opacity=0; setTimeout(()=>{T.textContent=tr(capT);E.textContent=tr(capE);T.style.opacity=1;},250); }
 document.getElementById('replay').addEventListener('click',flySeq);
 
 /* loss animation */
@@ -892,7 +929,8 @@ document.getElementById('lclose').addEventListener('click',()=>{ lbox.hidden=tru
 
 /* camera presets per slide */
 const CAM={
-  site:{get center(){return MOB?[-89.8530,16.9790]:[-89.8462,16.9775]},zoom:14.45,pitch:50,bearing:-20,terrain:true},
+  site:{get center(){return MOB?[-89.8505,16.9690]:[-89.8440,16.9700]},zoom:13.65,pitch:45,bearing:-12,terrain:true},
+  owned:{get center(){return MOB?[-89.8520,16.9765]:[-89.8478,16.9768]},zoom:14.6,pitch:48,bearing:-15,terrain:true},
   region:{center:[-89.85,16.95],zoom:9,pitch:30,bearing:0},
   loss:{center:[-89.80,16.975],zoom:10.6,pitch:0,bearing:0},
   lossNima:{get center(){return MOB?[-89.852,16.976]:[-89.838,16.972]},zoom:12.6,pitch:0,bearing:0},
@@ -912,7 +950,8 @@ function mapFor(kind,first){
       map.flyTo({center:[-89,14],zoom:1.35+ZADJ*0.5,padding:PAD(),pitch:0,bearing:0,duration:first||RM?0:2500});
       spinOn=true; if(first) setTimeout(spin,300); break;
     case 'fly': spinOn=false; flySeq(); break;
-    case 'site': cam('site'); layers({lots:true,vec:true,glow:true,front:s0().id==='s-scale'}); if(!traced){trace(true);traced=true;} showMk(s0().id==='s-scale'?(MOB?['haP','haV']:['haP','haV','frV','frP']):['site','haP','haV']); break;
+    case 'owned': cam('owned'); layers({lots:true,vec:false,glow:true,front:'pablo'}); trace(true); traced=true; showMk(['haP','frP']); break;
+    case 'site': cam('site'); layers({lots:true,vec:true,glow:true,front:s0().id==='s-scale'?'all':false}); if(!traced){trace(true);traced=true;} showMk(s0().id==='s-scale'?(MOB?['haP','haV','tbd']:['haP','haV','frV','frP','tbd']):['site','haP','haV']); break;
     case 'site-glow': cam('site'); lotsIn(true); showMk(['site']); break;
     case 'region': cam('region'); layers({ref:true}); showMk(['flores','tikal']); break;
     case 'loss': cam('loss',2600); layers({}); showMk(['flores']); map.once('moveend',()=>{ if(slides[cur].dataset.map==='loss'){ addLossLayers(); lossPlay(); } }); break;
@@ -961,7 +1000,7 @@ let cur=0;
 function parseHash(){ const m=location.hash.match(/^#s(\d+)$/); return m?Math.min(slides.length-1,Math.max(0,+m[1]-1)):0; }
 cur=parseHash();
 function countUp(root){ root.querySelectorAll('.cu').forEach(el=>{ const to=+el.dataset.to, dec=+(el.dataset.dec||0), t0=performance.now(), D=RM?1:1600;
-  const tick=now=>{ const p=Math.min(1,(now-t0)/D), e=1-Math.pow(1-p,4); el.textContent=(to*e).toLocaleString('es-GT',{minimumFractionDigits:dec,maximumFractionDigits:dec}); if(p<1) requestAnimationFrame(tick); };
+  const tick=now=>{ const p=Math.min(1,(now-t0)/D), e=1-Math.pow(1-p,4); el.textContent=(to*e).toLocaleString(LANG==='en'?'en-US':'es-GT',{minimumFractionDigits:dec,maximumFractionDigits:dec}); if(p<1) requestAnimationFrame(tick); };
   requestAnimationFrame(tick); }); }
 function go(i,first=false){
   i=Math.max(0,Math.min(slides.length-1,i));
@@ -1008,7 +1047,7 @@ function drawPop(){
   s+=`<path class="ln" id="popln" d="${d}"/>`;
   POP.forEach((p,i)=>{ const [px,py]=pts[i]; const anchor=i===0?'start':(i===POP.length-1?'end':'middle');
     s+=`<g class="pt" style="opacity:0;transition:opacity .5s ${0.6+i*0.35}s"><circle class="dot" cx="${px}" cy="${py}" r="5"/>
-      <text class="val" x="${px+(i===0?-4:0)}" y="${py-14}" text-anchor="${anchor}">${p[2]}</text>
+      <text class="val" x="${px+(i===0?-4:0)}" y="${py-14}" text-anchor="${anchor}">${tr(p[2])}</text>
       <text class="lbl" x="${px}" y="${B+22}" text-anchor="${anchor}">${p[0]}</text></g>`; });
   g.innerHTML=s;
   const ln=document.getElementById('popln'), len=ln.getTotalLength();
@@ -1028,6 +1067,20 @@ document.querySelectorAll('img[data-file]').forEach(img=>{
 });
 document.getElementById('credits').innerHTML=credits.join(' · ');
 
+function setLang(l){
+  LANG=l==='en'?'en':'es'; document.documentElement.lang=LANG;
+  document.querySelectorAll('[data-i]').forEach(el=>{ const k=I18N[+el.dataset.i]; if(k) el.textContent=LANG==='en'?k[1]:k[0]; });
+  document.querySelectorAll('.mk[data-es]').forEach(el=>{ el.innerHTML=tr(el.dataset.es); });
+  const T=document.getElementById('flyT'), E=document.getElementById('flyEy'); if(T){ T.textContent=tr(capT); E.textContent=tr(capE); }
+  document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.l===LANG)));
+  document.title=LANG==='en'?'Reserva Nimá · Lake Petén Itzá':'Reserva Nimá';
+  if(slides[cur] && slides[cur].id==='s-pop') drawPop();
+  try{ localStorage.setItem('nima-lang',LANG); }catch(e){}
+}
+document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); setLang(b.dataset.l); }));
+(()=>{ let l=null; try{ l=localStorage.getItem('nima-lang'); }catch(e){}
+  if(l!=='en') l='es';
+  setLang(l); })();
 go(cur,true);
 })();
 </script>
